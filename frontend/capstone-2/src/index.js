@@ -1,9 +1,16 @@
 import React from "react";
 import ReactDom from "react-dom/client";
 
+import Footer from "./components/Footer.jsx";
+import NavBar from "./components/NavBar.jsx";
+
 function App() {
   return (
-    <p>Hello World!</p> 
+    <>
+      <NavBar />
+      <p>Hello World!</p>
+      <Footer />
+    </>
   );
 }
 
