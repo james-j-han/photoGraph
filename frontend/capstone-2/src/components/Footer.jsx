@@ -1,6 +1,6 @@
 function Footer() {
   return (
-    <footer>&copy; {new Date().getFullYear()} JAMES HAN, MERRIAM KHAN, PARTH DAVE, TOAN LE, PHILIP BOULS</footer>
+    <footer>&copy; {new Date().getFullYear()} BYTE SIZED</footer>
   );
 }
 
