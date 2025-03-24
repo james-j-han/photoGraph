@@ -1,17 +1,53 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import React, { useState } from "react";
+import ReactDom from "react-dom/client";
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+import NavBar from "./components/NavBar.jsx";
+import Home from "./components/Home.jsx";
+import About from "./components/About.jsx";
+import Footer from "./components/Footer.jsx";
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+function App() {
+  const [activeSection, setActiveSection] = useState('home');
+  const [loggedIn, setLoggedIn] = useState(false);
+  const username = "John Doe"; // Retrieve from database
+
+  // Call backend API to handle login
+  const handleLoginClick = () => {
+    console.log("Login clicked");
+  };
+
+  // Call backend API to handle registration
+  const handleRegisterClick = () => {
+    console.log("Register clicked");
+  };
+
+  const renderSection = () => {
+    switch (activeSection) {
+      case 'home':
+        return <Home />;
+      case 'about':
+        return <About />;
+      default:
+        return <Home />;
+    }
+  }
+
+  return (
+    <>
+      <NavBar
+        setActiveSection={setActiveSection}
+        loggedIn={loggedIn}
+        username={username}
+        onLoginClick={handleLoginClick}
+        onRegisterClick={handleRegisterClick}
+      />
+      <main>
+        {renderSection()}
+      </main>
+      <Footer />
+    </>
+  );
+}
+
+const root = ReactDom.createRoot(document.getElementById("root"));
+root.render(<App />);
