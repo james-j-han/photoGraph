@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import ReactDom from "react-dom/client";
 
+import './index.css';
+
 import NavBar from "./components/NavBar.jsx";
 import Home from "./components/Home.jsx";
 import About from "./components/About.jsx";
@@ -14,11 +16,15 @@ function App() {
   // Call backend API to handle login
   const handleLoginClick = () => {
     console.log("Login clicked");
+    // Verify login credentials backend
+    // Use response to proceed to login or error message
   };
 
   // Call backend API to handle registration
   const handleRegisterClick = () => {
     console.log("Register clicked");
+    // Send registration credentials to backend
+    // Use response to display success or error
   };
 
   const renderSection = () => {
