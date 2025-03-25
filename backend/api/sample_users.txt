@@ -1,0 +1,7 @@
+INSERT INTO users (first_name, last_name, email, password_hash, created_at, last_login)
+VALUES
+('Alice', 'Johnson', 'alice.johnson@example.com', 'hashedpassword1', '2024-03-01 12:00:00+00', '2024-03-20 08:45:00+00'),
+('Bob', 'Smith', 'bob.smith@example.com', 'hashedpassword2', '2024-03-05 14:30:00+00', '2024-03-22 09:15:00+00'),
+('Charlie', 'Davis', 'charlie.davis@example.com', 'hashedpassword3', '2024-03-10 09:45:00+00', NULL),
+('Diana', 'Moore', 'diana.moore@example.com', 'hashedpassword4', '2024-03-12 18:10:00+00', '2024-03-23 10:00:00+00'),
+('Ethan', 'Brown', 'ethan.brown@example.com', 'hashedpassword5', '2024-03-15 07:55:00+00', '2024-03-24 11:30:00+00');
