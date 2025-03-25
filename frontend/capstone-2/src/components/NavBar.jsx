@@ -1,7 +1,29 @@
-import React from 'react';
-import '../styles/NavBar.css'
+import React, { useEffect, useRef, useState } from 'react';
+import '../styles/NavBar.css';
 
 function NavBar({ setActiveSection, loggedIn, username, onLoginClick, onRegisterClick }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const mobileMenuRef = useRef(null);
+
+  const toggleMenu = () => {
+    setMenuOpen(prev => !prev);
+  };
+
+  // If mousedown or touch outside of dropdown, close menu
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target)) {
+        setMenuOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   return (
     <nav className="navbar">
       <div className="navbar-left">
@@ -10,18 +32,44 @@ function NavBar({ setActiveSection, loggedIn, username, onLoginClick, onRegister
         </span>
       </div>
       <div className="navbar-right">
-        {loggedIn ? (
-          <span className="navbar-username">{username}</span>
-        ) : (
-          <>
-            <button className="navbar-button" onClick={onLoginClick}>
-              Login
-            </button>
-            <button className="navbar-button" onClick={onRegisterClick}>
-              Register
-            </button>
-          </>
-        )}
+        {/* Desktop Menu */}
+        <div className="desktop-menu">
+          {loggedIn ? (
+            <span className="navbar-username">{username}</span>
+          ) : (
+            <>
+              <button className="navbar-button" onClick={onLoginClick}>
+                Login
+              </button>
+              <button className="navbar-button" onClick={onRegisterClick}>
+                Register
+              </button>
+            </>
+          )}
+        </div>
+
+        {/* Mobile Menu */}
+        <div className="mobile-menu" ref={mobileMenuRef}>
+          <button className="hamburger" onClick={toggleMenu}>
+            ☰
+          </button>
+          {menuOpen && (
+            <div className="dropdown-menu">
+              {loggedIn ? (
+                <span className="navbar-username">{username}</span>
+              ) : (
+                <>
+                  <button className="navbar-button" onClick={onLoginClick}>
+                    Login
+                  </button>
+                  <button className="navbar-button" onClick={onRegisterClick}>
+                    Register
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </nav>
   );

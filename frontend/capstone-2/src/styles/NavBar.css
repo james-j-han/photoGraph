@@ -1,13 +1,12 @@
 .navbar {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-evenly;
   align-items: center;
-  background-color: #333;  /* Dark background */
+  background-color: #333;
   padding: 1rem 2rem;
   color: #fff;
 }
 
-/* Left side: Website name */
 .navbar-left {
   display: flex;
   align-items: center;
@@ -21,9 +20,9 @@
   color: #fff;
 }
 
-/* Right side: Login/Register or Username */
 .navbar-right {
   display: flex;
+  justify-content: flex-end;
   align-items: center;
   gap: 1rem;
 }
@@ -48,10 +47,48 @@
   font-size: 1rem;
 }
 
+.desktop-menu {
+  display: flex;
+  gap: 1rem;
+}
+
+.mobile-menu {
+  display: none;
+  margin-left: auto;
+  position: relative;
+}
+
+.hamburger {
+  background: none;
+  border: 1px solid #fff;
+  padding: 0.5rem 1rem;
+  font-size: 1.5rem;
+  color: #fff;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.hamburger:hover {
+  background-color: #fff;
+  color: #333;
+}
+
+.dropdown-menu {
+  position: fixed;
+  right: 0;
+  top: 80px;
+  background-color: #333;
+  padding: 1.0rem;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
 /* Media Query for Mobile Devices */
 @media (max-width: 768px) {
   .navbar {
-    flex-direction: column;
     padding: 1rem;
   }
 
@@ -64,5 +101,13 @@
     margin-top: 0.5rem;
     flex-direction: row;
     justify-content: center;
+  }
+
+  .desktop-menu {
+    display: none;
+  }
+
+  .mobile-menu {
+    display: flex;
   }
 }
