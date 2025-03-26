@@ -5,6 +5,7 @@ import './index.css';
 
 import NavBar from "./components/NavBar.jsx";
 import Home from "./components/Home.jsx";
+import Login from "./components/Login.jsx";
 import About from "./components/About.jsx";
 import Footer from "./components/Footer.jsx";
 
@@ -15,6 +16,7 @@ function App() {
 
   // Call backend API to handle login
   const handleLoginClick = () => {
+    setActiveSection('login');
     console.log("Login clicked");
     // Verify login credentials backend
     // Use response to proceed to login or error message
@@ -31,6 +33,8 @@ function App() {
     switch (activeSection) {
       case 'home':
         return <Home />;
+      case 'login':
+        return <Login />
       case 'about':
         return <About />;
       default:
