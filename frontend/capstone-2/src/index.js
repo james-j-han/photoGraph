@@ -6,6 +6,7 @@ import './index.css';
 import NavBar from "./components/NavBar.jsx";
 import Home from "./components/Home.jsx";
 import About from "./components/About.jsx";
+import Register from "./components/Register.jsx";
 import Footer from "./components/Footer.jsx";
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
 
   // Call backend API to handle registration
   const handleRegisterClick = () => {
+    setActiveSection('register');
     console.log("Register clicked");
     // Send registration credentials to backend
     // Use response to display success or error
@@ -33,6 +35,8 @@ function App() {
         return <Home />;
       case 'about':
         return <About />;
+      case 'register':
+        return <Register />;
       default:
         return <Home />;
     }
