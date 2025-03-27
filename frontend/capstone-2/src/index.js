@@ -5,13 +5,14 @@ import './index.css';
 
 import NavBar from "./components/NavBar.jsx";
 import Home from "./components/Home.jsx";
+import ProjectPage from "./components/ProjectsPage.jsx";
 import Login from "./components/Login.jsx";
 import About from "./components/About.jsx";
 import Register from "./components/Register.jsx";
 import Footer from "./components/Footer.jsx";
 
 function App() {
-  const [activeSection, setActiveSection] = useState('home');
+  const [activeSection, setActiveSection] = useState('projects');
   const [loggedIn, setLoggedIn] = useState(false);
   const username = "John Doe"; // Retrieve from database
 
@@ -35,6 +36,8 @@ function App() {
     switch (activeSection) {
       case 'home':
         return <Home />;
+      case 'projects':
+        return <ProjectPage />;
       case 'login':
         return <Login />
       case 'about':
