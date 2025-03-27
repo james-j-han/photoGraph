@@ -6,6 +6,7 @@ import './index.css';
 import NavBar from "./components/NavBar.jsx";
 import Home from "./components/Home.jsx";
 import ProjectPage from "./components/ProjectsPage.jsx";
+import ProjectDetail from "./components/ProjectDetail.jsx";
 import Login from "./components/Login.jsx";
 import About from "./components/About.jsx";
 import Register from "./components/Register.jsx";
@@ -14,6 +15,8 @@ import Footer from "./components/Footer.jsx";
 function App() {
   const [activeSection, setActiveSection] = useState('projects');
   const [loggedIn, setLoggedIn] = useState(false);
+  const [selectedProject, setSelectedProject] = useState(null);
+
   const username = "John Doe"; // Retrieve from database
 
   // Call backend API to handle login
@@ -32,12 +35,19 @@ function App() {
     // Use response to display success or error
   };
 
+  const handleSelectProject = (project) => {
+    setSelectedProject(project);
+    setActiveSection('projectDetail');
+  }
+
   const renderSection = () => {
     switch (activeSection) {
       case 'home':
         return <Home />;
       case 'projects':
-        return <ProjectPage />;
+        return <ProjectPage onSelectProject={handleSelectProject} />;
+      case 'projectDetail':
+        return <ProjectDetail project={selectedProject} onBack={() => setActiveSection('projects')} />;
       case 'login':
         return <Login />
       case 'about':

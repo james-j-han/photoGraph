@@ -4,7 +4,7 @@ import Filter from './Filter';
 import ProjectCard from './ProjectCard';
 import '../styles/Projects.css';
 
-function ProjectsPage() {
+function ProjectsPage({ onSelectProject }) {
   // Dummy data
   const projects = [
     { id: 1, title: 'Project One', llm: 'GPT-4', datasetSize: '500MB' },
@@ -29,7 +29,7 @@ function ProjectsPage() {
       </div>
       <div className="projects-grid">
         {filteredProjects.map(project => (
-          <ProjectCard key={project.id} project={project} />
+          <ProjectCard key={project.id} project={project} onClick={() => onSelectProject(project)} />
         ))}
       </div>
     </div>
