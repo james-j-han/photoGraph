@@ -3,7 +3,10 @@ import React, { useState } from 'react';
 import '../styles/Register.css';
 
 function Register({ onRegister }) {
+  const registerAPI = "https://photograph-production.up.railway.app/api/users/register";
   const [formData, setFormData] = useState({
+    first_name: '',
+    last_name: '',
     email: '',
     password: ''
   });
@@ -26,13 +29,15 @@ function Register({ onRegister }) {
     setSuccess(null);
 
     try {
-      const response = await fetch('http://localhost:5000/api/register', {
+      const response = await fetch(registerAPI, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),
       });
+      console.log(formData);
+      console.log(response);
 
       if (!response.ok) {
         // If the response is not ok, read the error message
@@ -45,6 +50,8 @@ function Register({ onRegister }) {
 
       // onRegister(data); // e.g., store token, user info, or redirect
     } catch (err) {
+      console.log(formData);
+      console.log("Error caught:", err);
       setError(err.message);
     }
   };
@@ -57,6 +64,30 @@ function Register({ onRegister }) {
       {success && <div className="success-message">{success}</div>}
 
       <form onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label htmlFor="first_name">First Name</label>
+          <input
+            id="first_name"
+            name="first_name"
+            type="text"
+            value={formData.first_name}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="last_name">Last Name</label>
+          <input
+            id="last_name"
+            name="last_name"
+            type="text"
+            value={formData.last_name}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
         <div className="form-group">
           <label htmlFor="email">Email</label>
           <input
