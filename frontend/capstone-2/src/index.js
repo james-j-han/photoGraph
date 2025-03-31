@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ReactDom from "react-dom/client";
 
 import './index.css';
@@ -13,11 +13,16 @@ import Register from "./components/Register.jsx";
 import Footer from "./components/Footer.jsx";
 
 function App() {
-  const [activeSection, setActiveSection] = useState('projects');
+  const [activeSection, setActiveSection] = useState('home');
   const [loggedIn, setLoggedIn] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
+  const [username, setUsername] = useState('');
 
-  const username = "John Doe"; // Retrieve from database
+  // Redirect user to projects page automatically after logging in
+  // Redirect user to home page automatically after logging out
+  useEffect(() => {
+    loggedIn ? setActiveSection('projects') : setActiveSection('home');
+  }, [loggedIn]);
 
   // Call backend API to handle login
   const handleLoginClick = () => {
@@ -26,6 +31,21 @@ function App() {
     // Verify login credentials backend
     // Use response to proceed to login or error message
   };
+
+  const handleLoginSubmission = (data) => {
+    setLoggedIn(true);
+    setUsername(data.username || "User");
+  }
+
+  const handleLogoutClick = () => {
+    setLoggedIn(false);
+    console.log("Logout clicked");
+  }
+
+  const handleProjectsClick = () => {
+    setActiveSection('projects')
+    console.log("Projects clicked");  
+  }
 
   // Call backend API to handle registration
   const handleRegisterClick = () => {
@@ -49,7 +69,7 @@ function App() {
       case 'projectDetail':
         return <ProjectDetail project={selectedProject} onBack={() => setActiveSection('projects')} />;
       case 'login':
-        return <Login />
+        return <Login onLogin={handleLoginSubmission} />
       case 'about':
         return <About />;
       case 'register':
@@ -67,6 +87,8 @@ function App() {
         username={username}
         onLoginClick={handleLoginClick}
         onRegisterClick={handleRegisterClick}
+        onLogoutClick={handleLogoutClick}
+        onProjectsClick={handleProjectsClick}
       />
       <main>
         {renderSection()}

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import '../styles/NavBar.css';
 
-function NavBar({ setActiveSection, loggedIn, username, onLoginClick, onRegisterClick }) {
+function NavBar({ setActiveSection, loggedIn, username, onLoginClick, onRegisterClick, onLogoutClick, onProjectsClick }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const mobileMenuRef = useRef(null);
 
@@ -35,7 +35,11 @@ function NavBar({ setActiveSection, loggedIn, username, onLoginClick, onRegister
         {/* Desktop Menu */}
         <div className="desktop-menu">
           {loggedIn ? (
-            <span className="navbar-username">{username}</span>
+            <>
+              <span className="navbar-username">{username}</span>
+              <button className="navbar-button" onClick={onProjectsClick}>Projects</button>
+              <button className="navbar-button" onClick={onLogoutClick}>Logout</button>
+            </>
           ) : (
             <>
               <button className="navbar-button" onClick={onLoginClick}>
