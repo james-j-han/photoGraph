@@ -43,7 +43,7 @@ function Login({ onLogin }) {
       const data = await response.json();
       setSuccess('Login successful!');
 
-      // onLogin(data);
+      onLogin(data);
     } catch (err) {
       console.log(formData);
       console.log("Error caught:", err);
