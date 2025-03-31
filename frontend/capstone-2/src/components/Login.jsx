@@ -45,6 +45,8 @@ function Login({ onLogin }) {
 
       onLogin(data);
     } catch (err) {
+      console.log(formData);
+      console.log("Error caught:", err);
       setError(err.message);
     }
   };
