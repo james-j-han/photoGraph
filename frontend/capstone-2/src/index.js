@@ -13,8 +13,9 @@ import Register from "./components/Register.jsx";
 import Footer from "./components/Footer.jsx";
 
 function App() {
-  const [activeSection, setActiveSection] = useState('projects');
-  const [loggedIn, setLoggedIn] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(true);
+  // Set landing page to projects if logged in, otherwise home
+  const [activeSection, setActiveSection] = useState(loggedIn ? 'projects' : 'home');
   const [selectedProject, setSelectedProject] = useState(null);
 
   const username = "John Doe"; // Retrieve from database
