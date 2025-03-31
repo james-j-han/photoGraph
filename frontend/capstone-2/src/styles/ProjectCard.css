@@ -1,8 +1,8 @@
 .project-card {
-  border: 1px solid #ccc;
+  border: 1.5px solid var(--color-accent);
   padding: 1rem;
   border-radius: 8px;
-  background-color: #fff;
+  background-color: var(--color-text-light);
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -15,8 +15,10 @@
 .project-card h3 {
   margin-top: 0;
   margin-bottom: 0.5rem;
+  color: var(--color-primary);
 }
 
 .project-card p {
   margin: 0.3rem 0;
+  color: var(--color-text-dark);
 }

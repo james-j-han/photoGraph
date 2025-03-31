@@ -1,7 +1,23 @@
+:root {
+  --color-primary: #ADA7C9;
+  --color-secondary: #D7B9D5;
+  --color-accent: #64A6BD;
+  --color-surface: #90A8C3;
+  --color-background: #F4CAE0;
+
+  --color-text-dark: #333;
+  --color-text-light: #fff;
+}
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-family: Roboto;
+}
+
+main {
+  padding-top: 100px;
 }
 
 body {

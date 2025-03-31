@@ -3,8 +3,8 @@ footer {
   justify-content: center;
   align-items: center;
   position: fixed;
-  background-color: #333;
-  color: #fff;
+  background-color: var(--color-primary);
+  color: var(--color-text-light);
   bottom: 0;
   left: 0;
   right: 0;

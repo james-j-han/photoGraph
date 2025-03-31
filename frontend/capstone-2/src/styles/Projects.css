@@ -1,7 +1,9 @@
 .projects-page {
   padding: 1rem;
-  max-width: 1200px;
-  margin: 0 auto;
+  max-width: 2000px;
+  margin: 1rem;
+  background-color: var(--color-background);
+  border-radius: 1rem;
 }
 
 .projects-header {
@@ -18,21 +20,23 @@
   padding: 0.5rem;
   font-size: 1rem;
   margin-right: 1rem;
+  border: 1px solid var(--color-secondary);
+  border-radius: 4px;
 }
 
 .filter-button {
   padding: 0.5rem 1rem;
   font-size: 1rem;
-  border: 1px solid #333;
-  background-color: #333;
-  color: #fff;
+  border: 1px solid var(--color-text-light);
+  background-color: var(--color-primary);
+  color: var(--color-text-light);
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
 
 .filter-button:hover {
-  background-color: #555;
+  background-color: var(--color-secondary);
 }
 
 .projects-grid {
@@ -47,7 +51,6 @@
   }
 }
 
-/* For even smaller screens, use 1 column */
 @media (max-width: 480px) {
   .projects-grid {
     grid-template-columns: 1fr;

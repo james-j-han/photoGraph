@@ -3,13 +3,17 @@
   flex-direction: column;
   gap: 1rem;
   margin: 1rem;
+  background-color: var(--color-background);
+  padding: 1rem;
+  border-radius: 8px;
 }
 
 .project-detail-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #eee;
+  background: var(--color-primary);
+  color: var(--color-text-light);
   padding: 0.5rem 1rem;
   border-radius: 4px;
 }
@@ -20,30 +24,36 @@
   align-items: center;
 }
 
+.header-controls button:hover {
+  background: var(--color-secondary);
+  color: var(--color-text-dark);
+}
+
 .header-controls button {
   padding: 0.5rem 1rem;
   cursor: pointer;
   border-radius: 4px;
-  border: 1px solid #333;
-  background: #333;
-  color: #fff;
+  border: 1px solid var(--color-text-light);
+  background: var(--color-primary);
+  color: var(--color-text-light);
 }
 
 .scatterplot-area {
   min-height: 300px;
-  border: 1px solid #ccc;
-  background: #fafafa;
+  border: 1px solid var(--color-secondary);
+  background: var(--color-text-light);
   border-radius: 4px;
   display: flex;
   justify-content: center;
   align-items: center;
   font-weight: bold;
+  color: var(--color-text-dark);
 }
 
 button {
-  border: 1px solid #333;
-  background: #333;
-  color: #fff;
+  border: 1px solid var(--color-text-dark);
+  background: var(--color-primary);
+  color: var(--color-text-light);
   padding: 0.5rem 1rem;
   border-radius: 4px;
   cursor: pointer;
@@ -51,5 +61,6 @@ button {
 }
 
 button:hover {
-  background: #555;
+  background: var(--color-secondary);
+  color: var(--color-text-dark);
 }
