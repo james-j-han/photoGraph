@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import '../styles/Login.css';
 
 function Login({ onLogin }) {
+  const loginAPI = "https://photograph-production.up.railway.app/api/users/login";
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -26,7 +27,7 @@ function Login({ onLogin }) {
     setSuccess(null);
 
     try {
-      const response = await fetch('http://localhost:5000/api/login', {
+      const response = await fetch(loginAPI, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -44,6 +45,8 @@ function Login({ onLogin }) {
 
       // onLogin(data);
     } catch (err) {
+      console.log(formData);
+      console.log("Error caught:", err);
       setError(err.message);
     }
   };
