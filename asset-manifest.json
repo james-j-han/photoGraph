@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/photoGraph/static/css/main.df035907.css",
+    "main.js": "/photoGraph/static/js/main.40dd85f2.js",
+    "index.html": "/photoGraph/index.html",
+    "main.df035907.css.map": "/photoGraph/static/css/main.df035907.css.map",
+    "main.40dd85f2.js.map": "/photoGraph/static/js/main.40dd85f2.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.df035907.css",
+    "static/js/main.40dd85f2.js"
+  ]
+}
