@@ -1,0 +1,48 @@
+.home-container {
+  margin: 1rem;
+  padding: 1rem;
+  width: calc(100vw - 2rem);
+  background-color: var(--color-background);
+  border-radius: 8px;
+  height: calc(100vh - 170px);
+  /* box-sizing: border-box; */
+}
+
+.hero-section {
+  background-color: var(--color-secondary);
+  color: var(--color-text-light);
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.hero-section h1 {
+  margin-bottom: 0.5rem;
+}
+
+.scatterplot-showcase {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  align-items: center;
+}
+
+.scatterplot-showcase img {
+  width: 48%;
+  border: 1px solid var(--color-primary);
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  object-fit: cover;
+}
+
+/* Mobile adjustments: stack images vertically on narrow screens */
+@media (max-width: 600px) {
+  .scatterplot-showcase {
+    flex-direction: column;
+  }
+  
+  .scatterplot-showcase img {
+    width: 100%;
+  }
+}

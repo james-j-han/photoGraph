@@ -1,33 +1,44 @@
-import React, { useEffect, useRef, useState } from 'react';
-import '../styles/NavBar.css';
+import React, { useEffect, useRef, useState } from "react";
+import "../styles/NavBar.css";
 
-function NavBar({ setActiveSection, loggedIn, username, onLoginClick, onRegisterClick, onLogoutClick, onProjectsClick }) {
+function NavBar({
+  setActiveSection,
+  loggedIn,
+  username,
+  onLoginClick,
+  onRegisterClick,
+  onLogoutClick,
+  onProjectsClick,
+}) {
   const [menuOpen, setMenuOpen] = useState(false);
   const mobileMenuRef = useRef(null);
 
   const toggleMenu = () => {
-    setMenuOpen(prev => !prev);
+    setMenuOpen((prev) => !prev);
   };
 
   // If mousedown or touch outside of dropdown, close menu
   useEffect(() => {
     function handleClickOutside(event) {
-      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target)) {
+      if (
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(event.target)
+      ) {
         setMenuOpen(false);
       }
     }
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
   return (
     <nav className="navbar">
       <div className="navbar-left">
-        <span className="navbar-brand" onClick={() => setActiveSection('home')}>
+        <span className="navbar-brand" onClick={() => setActiveSection("home")}>
           photoGRAPH
         </span>
       </div>
@@ -37,8 +48,12 @@ function NavBar({ setActiveSection, loggedIn, username, onLoginClick, onRegister
           {loggedIn ? (
             <>
               <span className="navbar-username">{username}</span>
-              <button className="navbar-button" onClick={onProjectsClick}>Projects</button>
-              <button className="navbar-button" onClick={onLogoutClick}>Logout</button>
+              <button className="navbar-button" onClick={onProjectsClick}>
+                Projects
+              </button>
+              <button className="navbar-button" onClick={onLogoutClick}>
+                Logout
+              </button>
             </>
           ) : (
             <>
@@ -54,13 +69,23 @@ function NavBar({ setActiveSection, loggedIn, username, onLoginClick, onRegister
 
         {/* Mobile Menu */}
         <div className="mobile-menu" ref={mobileMenuRef}>
+          {loggedIn && (
+            <span className="navbar-username mobile-username">{username}</span>
+          )}
           <button className="hamburger" onClick={toggleMenu}>
             ☰
           </button>
           {menuOpen && (
             <div className="dropdown-menu">
               {loggedIn ? (
-                <span className="navbar-username">{username}</span>
+                <>
+                  <button className="navbar-button" onClick={onProjectsClick}>
+                    Projects
+                  </button>
+                  <button className="navbar-button" onClick={onLogoutClick}>
+                    Logout
+                  </button>
+                </>
               ) : (
                 <>
                   <button className="navbar-button" onClick={onLoginClick}>
