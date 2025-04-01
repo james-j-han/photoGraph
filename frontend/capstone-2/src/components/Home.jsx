@@ -1,6 +1,9 @@
 import React from 'react';
 import '../styles/Home.css';
 
+import scatterplot_1 from "../images/scatterplot_1.png";
+import scatterplot_2 from "../images/scatterplot_2.png";
+
 function HomeSection() {
   return (
     <section className="home-container">
@@ -12,8 +15,8 @@ function HomeSection() {
       </div>
       
       <div className="scatterplot-showcase">
-        <img src="scatterplot1.png" alt="Scatterplot Example 1" />
-        <img src="scatterplot2.png" alt="Scatterplot Example 2" />
+        <img src={scatterplot_1} alt="Scatterplot Example 1" />
+        <img src={scatterplot_2} alt="Scatterplot Example 2" />
       </div>
     </section>
   );
