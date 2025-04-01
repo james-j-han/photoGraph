@@ -6,6 +6,7 @@
   border-radius: 8px;
   height: calc(100vh - 170px);
   /* box-sizing: border-box; */
+  margin-bottom: calc(1rem + env(safe-area-inset-bottom));
 }
 
 .hero-section {
