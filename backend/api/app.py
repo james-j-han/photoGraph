@@ -1,4 +1,5 @@
 
+from flask_cors import CORS
 from flask import Flask, request, jsonify
 from routes.users import user_routes
 from flask_session import Session
@@ -15,6 +16,7 @@ app.secret_key = os.getenv("SESSION_SECRET_KEY", "supersecretkey")
 
 # Initialize Flask-Session
 Session(app)
+CORS(app)
 
 if __name__ == "__main__":
     app.run(debug=True)
