@@ -48,7 +48,7 @@
 }
 
 .navbar-button:hover {
-  background-color: var(--color-secondary);
+  background-color: var(--color-background);
   color: var(--color-text-dark);
 }
 
@@ -90,7 +90,7 @@
 
 .hamburger:hover {
   background-color: var(--color-secondary);
-  color: var(--color-text-dark);
+  color: var(--color-text-light);
 }
 
 .dropdown-menu {

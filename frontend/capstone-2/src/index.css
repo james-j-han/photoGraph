@@ -1,9 +1,9 @@
 :root {
-  --color-primary: #ADA7C9;
-  --color-secondary: #D7B9D5;
-  --color-accent: #64A6BD;
-  --color-surface: #90A8C3;
-  --color-background: #F4CAE0;
+  --color-primary: #242331;
+  --color-secondary: #533E2D;
+  --color-accent: #A27035;
+  --color-surface: #B88B4A;
+  --color-background: #DDCA7D;
 
   --color-text-dark: #333;
   --color-text-light: #fff;
@@ -25,14 +25,4 @@ body {
   flex-direction: column;
   justify-content: center;
   max-width: 2000px;
-}
-
-.home-container {
-  padding: 1rem;
-}
-
-.hero-section {
-  background-color: #f4f4f4;
-  padding: 1rem;
-  text-align: center;
 }

@@ -4,6 +4,9 @@
   margin: 1rem;
   background-color: var(--color-background);
   border-radius: 1rem;
+  height: calc(100vh - 170px);
+  /* overflow-y: auto; */
+  border: 1px solid var(--color-primary);
 }
 
 .projects-header {
@@ -24,6 +27,12 @@
   border-radius: 4px;
 }
 
+/* New container for the grid with scrolling */
+.grid-container {
+  height: calc(100% - 60px);
+  overflow-y: auto;
+}
+
 .filter-button {
   padding: 0.5rem 1rem;
   font-size: 1rem;
@@ -36,7 +45,15 @@
 }
 
 .filter-button:hover {
-  background-color: var(--color-secondary);
+  background-color: var(--color-background);
+}
+
+@media (max-width: 600px) {
+  .grid-container {
+    /* Calculate available height: full viewport height minus header height */
+    max-height: calc(100vh - 150px); /* Adjust 150px to match your header + any padding */
+    overflow-y: auto;
+  }
 }
 
 .projects-grid {
