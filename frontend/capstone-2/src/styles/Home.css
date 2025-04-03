@@ -1,13 +1,12 @@
 .home-container {
-  margin: 1rem;
+  margin: 1rem 1rem 3rem 1rem;
   padding: 1rem;
   width: calc(100vw - 2rem);
   max-width: 1200px;
   background-color: var(--color-background);
   border-radius: 8px;
-  height: calc(100vh - 170px);
   box-sizing: border-box;
-  margin-bottom: calc(1rem + env(safe-area-inset-bottom));
+  overflow-y: scroll;
 }
 
 .hero-section {
@@ -48,7 +47,14 @@
 @media (max-width: 600px) {
   .scatterplot-showcase {
     display: grid;
-    grid-template-columns: repeat(1, 1fr);
-    /* flex-direction: column; */
+    /* grid-template-columns: repeat(1, 1fr); */
+    flex-direction: column;
+    max-height: calc(100% - 170px);
+  }
+
+  .scatterplot-showcase img {
+    flex: 1 1 0;
+    width: 100%;
+    max-width: none;
   }
 }
