@@ -3,6 +3,8 @@ from dotenv import load_dotenv
 import os
 from supabase import create_client, Client
 from flask_cors import CORS
+import supabase
+print("Supabase version:", supabase.__version__)
 
 load_dotenv()  # Load variables from your .env file
 
@@ -22,10 +24,10 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 @app.route('/register', methods=['POST'])
 def register():
-    data = request.get_json()
-    auth_id = data.get('auth_id')
-    first_name = data.get('first_name')
-    last_name = data.get('last_name')
+        data = request.get_json()
+        auth_id = data.get('auth_id')
+        first_name = data.get('first_name')
+        last_name = data.get('last_name')
     
     if not auth_id or not first_name or not last_name:
         return jsonify({'error': 'Missing required fields'}), 400
@@ -57,14 +59,6 @@ def register():
 def index():
     response = supabase.table('users').select("*").execute()
     return jsonify(response.data)
-
-@app.errorhandler(404)
-def not_found(error):
-    return jsonify({'error': 'Not Found'}), 404
-
-@app.errorhandler(500)
-def server_error(error):
-    return jsonify({'error': 'Server Error'}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
