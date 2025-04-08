@@ -44,6 +44,7 @@ def register():
         'last_name': last_name
     }).execute()
 
+    # Handle response without status codes
     if not response.data:
         return jsonify({
             'error': 'Insertion failed',
