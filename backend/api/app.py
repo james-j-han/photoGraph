@@ -29,6 +29,11 @@ def register():
     
     if not auth_id or not first_name or not last_name:
         return jsonify({'error': 'Missing required fields'}), 400
+    
+    # Check if user exists
+    existing_user = supabase.table('users').select("*").eq('id', auth_id).execute()
+    if existing_user.data:  # If there's already a record
+        return jsonify({'error': 'User already registered'}), 409
 
     # Insert new user into the 'users' table
     response = supabase.table('users').insert({
@@ -46,6 +51,14 @@ def register():
 def index():
     response = supabase.table('users').select("*").execute()
     return jsonify(response.data)
+
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({'error': 'Not Found'}), 404
+
+@app.errorhandler(500)
+def server_error(error):
+    return jsonify({'error': 'Server Error'}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
