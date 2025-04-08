@@ -56,6 +56,11 @@ function App() {
     // Use response to display success or error
   };
 
+  const handleRegisterSubmission = (data) => {
+    setLoggedIn(true);
+    setUsername(data?.username || "User");
+  };
+
   const handleSelectProject = (project) => {
     setSelectedProject(project);
     setActiveSection('projectDetail');
@@ -74,7 +79,7 @@ function App() {
       case 'about':
         return <About />;
       case 'register':
-        return <Register />;
+        return <Register onRegister={handleRegisterSubmission} />;
       default:
         return <Home />;
     }
