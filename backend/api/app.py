@@ -41,9 +41,9 @@ def register():
         'first_name': first_name,
         'last_name': last_name
     }).execute()
-    
-    if response.get('error'):
-        return jsonify({'error': response['error']['message']}), 400
+
+    if response.error:
+        return jsonify({'error': str(response.error)}), 400
     
     return jsonify({'message': 'User registered successfully', 'data': response.get('data')}), 201
 
