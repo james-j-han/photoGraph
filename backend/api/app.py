@@ -18,3 +18,7 @@ try:
     cursor = conn.cursor()
 except Exception as e:
     print("❌ Failed to connect to database:", e)
+
+@app.route('/')
+def hello_world():
+    return 'Hello, World!'
