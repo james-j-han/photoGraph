@@ -1,14 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import { createClient } from "@supabase/supabase-js";
 
-import '../styles/Register.css';
+import "../styles/Register.css";
 
 function Register({ onRegister }) {
-  const registerAPI = "https://photograph-production.up.railway.app/api/users/register";
+  const registerAPI = "https://photograph-4lb1.onrender.com/register";
+  const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
+  const supabaseKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseKey) {
+    throw new Error("Missing Supabase URL or Key in environment variables.");
+  }
+
+  const supabase = createClient(supabaseUrl, supabaseKey);
+
   const [formData, setFormData] = useState({
-    first_name: '',
-    last_name: '',
-    email: '',
-    password: ''
+    first_name: "",
+    last_name: "",
+    email: "",
+    password: "",
   });
 
   // Track success or error
@@ -16,9 +26,9 @@ function Register({ onRegister }) {
   const [success, setSuccess] = useState(null);
 
   const handleChange = (e) => {
-    setFormData({ 
-      ...formData, 
-      [e.target.name]: e.target.value 
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -29,29 +39,52 @@ function Register({ onRegister }) {
     setSuccess(null);
 
     try {
-      const response = await fetch(registerAPI, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+      // Step 1: Sign up user via Supabase Auth
+      const { data, error } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
       });
-      console.log(formData);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      // Extract auth_id from the returned user object
+      const auth_id = data.user?.id;
+      if (!auth_id) {
+        throw new Error("Failed to obtain auth_id");
+      }
+
+      // Step 2: Prepare payload for your backend registration endpoint
+      const payload = {
+        auth_id, // Include the auth_id from Supabase Auth
+        first_name: formData.first_name,
+        last_name: formData.last_name,
+        // Optionally include additional metadata
+      };
+
+      // Now register the user in your custom table via your backend API endpoint
+      const response = await fetch(registerAPI, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      console.log(payload);
       console.log(response);
 
       if (!response.ok) {
-        // If the response is not ok, read the error message
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Registration failed');
+        throw new Error(errorData.message || "Registration failed");
       }
 
-      const data = await response.json();
-      setSuccess('Registration successful!');
-
-      // onRegister(data); // e.g., store token, user info, or redirect
+      const responseData = await response.json();
+      setSuccess("Registration successful!");
+      // onRegister(responseData); // e.g., store token, update user context, redirect, etc.
     } catch (err) {
-      console.log(formData);
-      console.log("Error caught:", err);
+      console.error("Error caught:", err);
       setError(err.message);
     }
   };
