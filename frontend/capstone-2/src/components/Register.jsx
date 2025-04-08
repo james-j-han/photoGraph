@@ -77,6 +77,7 @@ function Register({ onRegister }) {
 
       if (!response.ok) {
         const errorData = await response.json();
+        console.error("Server error message:", errorData)
         throw new Error(errorData.message || "Registration failed");
       }
 

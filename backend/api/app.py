@@ -42,10 +42,16 @@ def register():
         'last_name': last_name
     }).execute()
 
-    if response.error:
-        return jsonify({'error': str(response.error)}), 400
+    if not response.data:
+        return jsonify({
+            'error': 'Insertion failed',
+            'details': 'No data returned in the response.'
+        }), 400
     
-    return jsonify({'message': 'User registered successfully', 'data': response.get('data')}), 201
+    return jsonify({
+        'message': 'User registered successfully',
+        'data': response.data
+    }), 201
 
 @app.route('/')
 def index():
