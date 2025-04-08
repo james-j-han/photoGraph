@@ -2,14 +2,20 @@ from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 import os
 from supabase import create_client, Client
+from flask_cors import CORS
 
-load_dotenv()
+load_dotenv()  # Load variables from your .env file
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS
 
 # Supabase configuration using environment variables
-SUPABASE_URL = os.environ.get("SUPABASE_URL")
-SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
+SUPABASE_URL = os.environ.get("REACT_APP_SUPABASE_URL")
+SUPABASE_KEY = os.environ.get("REACT_APP_SUPABASE_ANON_KEY")
+
+# Ensure the variables are correctly loaded
+if not SUPABASE_URL or not SUPABASE_KEY:
+    raise ValueError("Missing Supabase URL or Key in environment variables.")
 
 # Create Supabase client instance
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
@@ -17,7 +23,6 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 @app.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
-    # Get required fields from the request payload
     auth_id = data.get('auth_id')
     first_name = data.get('first_name')
     last_name = data.get('last_name')
@@ -25,7 +30,7 @@ def register():
     if not auth_id or not first_name or not last_name:
         return jsonify({'error': 'Missing required fields'}), 400
 
-    # Attempt to insert the new user into the custom 'users' table
+    # Insert new user into the 'users' table
     response = supabase.table('users').insert({
         'id': auth_id,
         'first_name': first_name,
@@ -33,14 +38,12 @@ def register():
     }).execute()
     
     if response.get('error'):
-        # If Supabase returned an error, send it back
         return jsonify({'error': response['error']['message']}), 400
     
     return jsonify({'message': 'User registered successfully', 'data': response.get('data')}), 201
 
 @app.route('/')
 def index():
-    # Example query to test the connection:
     response = supabase.table('users').select("*").execute()
     return jsonify(response.data)
 
