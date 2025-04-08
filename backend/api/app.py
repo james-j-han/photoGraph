@@ -24,10 +24,10 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 @app.route('/register', methods=['POST'])
 def register():
-        data = request.get_json()
-        auth_id = data.get('auth_id')
-        first_name = data.get('first_name')
-        last_name = data.get('last_name')
+    data = request.get_json()
+    auth_id = data.get('auth_id')
+    first_name = data.get('first_name')
+    last_name = data.get('last_name')
     
     if not auth_id or not first_name or not last_name:
         return jsonify({'error': 'Missing required fields'}), 400
