@@ -1,22 +1,20 @@
-
-from flask_cors import CORS
 from flask import Flask, request, jsonify
-from routes.users import user_routes
-from flask_session import Session
+from dotenv import load_dotenv
 import os
+import psycopg2
+
+load_dotenv()
 
 app = Flask(__name__)
 
-app.register_blueprint(user_routes, url_prefix="/api/users")
-
-app.config["SESSION_TYPE"] = "filesystem"
-app.config["SESSION_PERMANENT"] = False
-app.config["SESSION_USE_SIGNER"] = True  # Adds extra security
-app.secret_key = os.getenv("SESSION_SECRET_KEY", "supersecretkey")
-
-# Initialize Flask-Session
-Session(app)
-CORS(app)
-
-if __name__ == "__main__":
-    app.run(debug=True)
+try:
+    conn = psycopg2.connect(
+        host=os.getenv('DB_HOST'),
+        database=os.getenv('DB_NAME'),
+        user=os.getenv('DB_USER'),
+        password=os.getenv('DB_PASSWORD'),
+        port=os.getenv('DB_PORT')
+    )
+    cursor = conn.cursor()
+except Exception as e:
+    print("❌ Failed to connect to database:", e)
