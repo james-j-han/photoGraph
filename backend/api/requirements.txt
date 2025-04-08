@@ -9,6 +9,7 @@ certifi==2025.1.31
 click==8.1.8
 deprecation==2.1.0
 Flask==3.1.0
+flask-cors==5.0.1
 frozenlist==1.5.0
 gotrue==2.12.0
 gunicorn==23.0.0
