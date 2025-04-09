@@ -4,7 +4,7 @@ import "../styles/NavBar.css";
 function NavBar({
   setActiveSection,
   loggedIn,
-  username,
+  userData,
   onLoginClick,
   onRegisterClick,
   onLogoutClick,
@@ -47,7 +47,7 @@ function NavBar({
         <div className="desktop-menu">
           {loggedIn ? (
             <>
-              <span className="navbar-username">{username}</span>
+              <span className="navbar-username">{userData.first_name}</span>
               <button className="navbar-button" onClick={onProjectsClick}>
                 Projects
               </button>
@@ -70,7 +70,7 @@ function NavBar({
         {/* Mobile Menu */}
         <div className="mobile-menu" ref={mobileMenuRef}>
           {loggedIn && (
-            <span className="navbar-username mobile-username">{username}</span>
+            <span className="navbar-username mobile-username">{userData.first_name}</span>
           )}
           <button className="hamburger" onClick={toggleMenu}>
             ☰

@@ -18,12 +18,17 @@ function App() {
   const [activeSection, setActiveSection] = useState(loggedIn ? 'projects' : 'home');
   const [selectedProject, setSelectedProject] = useState(null);
   const [username, setUsername] = useState('');
+  const [userData, setUserData] = useState(null);
 
   // Redirect user to projects page automatically after logging in
   // Redirect user to home page automatically after logging out
   useEffect(() => {
     loggedIn ? setActiveSection('projects') : setActiveSection('home');
   }, [loggedIn]);
+
+  // useEffect(() => {
+  //   userData ? setUsername(userData.first_name) : "User";
+  // }, [userData]);
 
   // Call backend API to handle login
   const handleLoginClick = () => {
@@ -35,7 +40,7 @@ function App() {
 
   const handleLoginSubmission = (data) => {
     setLoggedIn(true);
-    setUsername(data.username || "User");
+    setUserData(data.data[0]);
   }
 
   const handleLogoutClick = () => {
@@ -58,7 +63,7 @@ function App() {
 
   const handleRegisterSubmission = (data) => {
     setLoggedIn(true);
-    setUsername(data?.username || "User");
+    setUserData(data.data[0]);
   };
 
   const handleSelectProject = (project) => {
@@ -90,7 +95,7 @@ function App() {
       <NavBar
         setActiveSection={setActiveSection}
         loggedIn={loggedIn}
-        username={username}
+        userData={userData}
         onLoginClick={handleLoginClick}
         onRegisterClick={handleRegisterClick}
         onLogoutClick={handleLogoutClick}

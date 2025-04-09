@@ -71,7 +71,9 @@ function Register({ onRegister }) {
 
       const responseData = await response.json();
       setSuccess("Registration successful!");
-      onRegister(responseData); // e.g., store token, update user context, redirect, etc.
+      console.log(responseData);
+      
+      onRegister(responseData);
     } catch (err) {
       console.error("Error caught:", err);
       setError(err.message);
