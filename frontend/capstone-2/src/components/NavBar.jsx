@@ -47,7 +47,10 @@ function NavBar({
         <div className="desktop-menu">
           {loggedIn ? (
             <>
-              <span className="navbar-username">{userData.first_name}</span>
+              <span className="navbar-username">
+                {userData?.user_metadata?.first_name || "Guest"}{" "}
+                {userData?.user_metadata?.last_name || "Guest"}{""}
+              </span>
               <button className="navbar-button" onClick={onProjectsClick}>
                 Projects
               </button>
@@ -70,7 +73,10 @@ function NavBar({
         {/* Mobile Menu */}
         <div className="mobile-menu" ref={mobileMenuRef}>
           {loggedIn && (
-            <span className="navbar-username mobile-username">{userData.first_name}</span>
+            <span className="navbar-username mobile-username">
+              {userData?.user_metadata?.first_name || "Guest"}{" "}
+              {userData?.user_metadata?.last_name || "Guest"}{""}
+            }</span>
           )}
           <button className="hamburger" onClick={toggleMenu}>
             ☰

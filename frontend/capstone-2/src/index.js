@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ReactDom from "react-dom/client";
+import supabase from "./components/Supabase.jsx";
 
 import './index.css';
 
@@ -15,16 +16,16 @@ import Footer from "./components/Footer.jsx";
 function App() {
   const [loggedIn, setLoggedIn] = useState(false);
   // Set landing page to projects if logged in, otherwise home
-  const [activeSection, setActiveSection] = useState(loggedIn ? 'projects' : 'home');
+  const [activeSection, setActiveSection] = useState('home');
   const [selectedProject, setSelectedProject] = useState(null);
   const [username, setUsername] = useState('');
   const [userData, setUserData] = useState(null);
 
   // Redirect user to projects page automatically after logging in
   // Redirect user to home page automatically after logging out
-  useEffect(() => {
-    loggedIn ? setActiveSection('projects') : setActiveSection('home');
-  }, [loggedIn]);
+  // useEffect(() => {
+  //   loggedIn ? setActiveSection('projects') : setActiveSection('home');
+  // }, [loggedIn]);
 
   // useEffect(() => {
   //   userData ? setUsername(userData.first_name) : "User";
@@ -40,13 +41,26 @@ function App() {
 
   const handleLoginSubmission = (data) => {
     setLoggedIn(true);
-    setUserData(data.data[0]);
+    setUserData(data.user);
+    setActiveSection('projects');
   }
 
-  const handleLogoutClick = () => {
-    setLoggedIn(false);
-    console.log("Logout clicked");
-  }
+  const handleLogoutClick = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error("Error signing out:", error.message);
+        // Optionally, you could display an error message to the user.
+      } else {
+        setLoggedIn(false);
+        setUserData(null);
+        setActiveSection('home');
+        console.log("Logout successful");
+      }
+    } catch (err) {
+      console.error("Logout exception:", err);
+    }
+  };
 
   const handleProjectsClick = () => {
     setActiveSection('projects')
@@ -63,7 +77,7 @@ function App() {
 
   const handleRegisterSubmission = (data) => {
     setLoggedIn(true);
-    setUserData(data.data[0]);
+    setUserData(data.user);
   };
 
   const handleSelectProject = (project) => {
@@ -100,6 +114,7 @@ function App() {
         onRegisterClick={handleRegisterClick}
         onLogoutClick={handleLogoutClick}
         onProjectsClick={handleProjectsClick}
+        onLogin={handleLoginSubmission}
       />
       <main>
         {renderSection()}
