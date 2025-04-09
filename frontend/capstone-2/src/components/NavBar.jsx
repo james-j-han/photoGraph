@@ -76,7 +76,7 @@ function NavBar({
             <span className="navbar-username mobile-username">
               {userData?.user_metadata?.first_name || "Guest"}{" "}
               {userData?.user_metadata?.last_name || "Guest"}{""}
-            }</span>
+            </span>
           )}
           <button className="hamburger" onClick={toggleMenu}>
             ☰
