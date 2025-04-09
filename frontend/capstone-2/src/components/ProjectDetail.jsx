@@ -43,7 +43,7 @@ function ProjectDetail({ project, onBack, onProjectUpdate }) {
         // Update the local state with the updated project
         setLocalProject(data[0]);
         setIsEditing(false);
-        // Optionally, notify the parent to update its list with the new project data
+        // Notify the parent to update its list with the new project data
         if (onProjectUpdate) onProjectUpdate(data[0]);
       }
     } catch (err) {
@@ -52,7 +52,7 @@ function ProjectDetail({ project, onBack, onProjectUpdate }) {
     }
   };
 
-  // Optionally, allow saving on Enter or on blur from the input field.
+  // Allow saving on Enter or on blur from the input field.
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
       handleSave();
@@ -69,20 +69,20 @@ function ProjectDetail({ project, onBack, onProjectUpdate }) {
   const handleFileChange = async (e) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
-
-    // For each file, process the embeddings
+  
+    const validImageTypes = ['image/jpeg', 'image/png', 'image/gif']; // Add or adjust types based on what CLIP and PCA accept
+  
     for (const file of files) {
-      // For demonstration, simply log the file.
-      // In practice, you would send the file to your ML model or process it locally.
+      // Check the file's MIME type
+      if (!validImageTypes.includes(file.type)) {
+        console.error(`File ${file.name} is not a supported image type.`);
+        continue; // Skip processing for this file
+      }
+      
       console.log('Processing file:', file.name);
-
-      // Example: Call a function to extract embeddings (pseudo-code)
-      // const { clipEmbeddings, pcaEmbeddings } = await extractEmbeddings(file);
-
-      // Then, insert these embeddings into the corresponding Supabase table.
-      // For instance:
-      // await supabase.from('clip_embeddings').insert({ data_point_id: project.id, embedding: clipEmbeddings }).execute();
-      // await supabase.from('pca_embeddings').insert({ data_point_id: project.id, embedding: pcaEmbeddings }).execute();
+      
+      // Proceed to extract embeddings from the image file.
+      // For example, you might send it to a serverless function, use FileReader, etc.
     }
   };
 
@@ -143,6 +143,7 @@ function ProjectDetail({ project, onBack, onProjectUpdate }) {
         multiple
         ref={fileInputRef}
         style={{ display: 'none' }}
+        accept="image/*"
         onChange={handleFileChange}
       />
     </div>
