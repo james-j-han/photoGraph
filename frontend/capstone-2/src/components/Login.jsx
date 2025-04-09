@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
+import supabase from './Supabase';
 import '../styles/Login.css';
 
 function Login({ onLogin }) {
-  const loginAPI = "https://photograph-production.up.railway.app/api/users/login";
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -27,26 +27,24 @@ function Login({ onLogin }) {
     setSuccess(null);
 
     try {
-      const response = await fetch(loginAPI, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: formData.password,
       });
+      console.log("Login data:", data);
+      
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Login failed');
+      if (error) {
+        throw new Error(error.message);
       }
 
-      const data = await response.json();
-      setSuccess('Login successful!');
+      setSuccess("Login successful!");
 
-      onLogin(data);
+      if (onLogin) {
+        onLogin(data);
+      }
     } catch (err) {
-      console.log(formData);
-      console.log("Error caught:", err);
+      console.error("Login error:", err);
       setError(err.message);
     }
   };

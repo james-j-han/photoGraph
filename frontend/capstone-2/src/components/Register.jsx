@@ -4,7 +4,7 @@ import supabase from "./Supabase";
 import "../styles/Register.css";
 
 function Register({ onRegister }) {
-  const registerAPI = "https://photograph-4lb1.onrender.com/register";
+  // const registerAPI = "https://photograph-4lb1.onrender.com/register";
 
   const [formData, setFormData] = useState({
     first_name: "",
@@ -35,6 +35,12 @@ function Register({ onRegister }) {
       const { data, error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
+        options: {
+          data: {
+            first_name: formData.first_name,
+            last_name: formData.last_name
+          }
+        }
       });
 
       if (error) {
@@ -47,6 +53,9 @@ function Register({ onRegister }) {
         throw new Error("Failed to obtain auth_id");
       }
 
+      const authUser = data.user;
+      console.log("User signed up, metadata:", authUser.user_metadata);
+
       // Prepare payload for your backend registration endpoint
       const payload = {
         auth_id, // Include the auth_id from Supabase Auth
@@ -55,25 +64,26 @@ function Register({ onRegister }) {
       };
 
       // Now register the user in your custom table via your backend API endpoint
-      const response = await fetch(registerAPI, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+      // const response = await fetch(registerAPI, {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   body: JSON.stringify(payload),
+      // });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Server error message:", errorData)
-        throw new Error(errorData.message || "Registration failed");
+      // if (!response.ok) {
+      //   const errorData = await response.json();
+      //   console.error("Server error message:", errorData)
+      //   throw new Error(errorData.message || "Registration failed");
+      // }
+
+      setSuccess("Registration successful!");
+
+      if (onRegister) {
+        onRegister(authUser);
       }
 
-      const responseData = await response.json();
-      setSuccess("Registration successful!");
-      console.log(responseData);
-      
-      onRegister(responseData);
     } catch (err) {
       console.error("Error caught:", err);
       setError(err.message);
