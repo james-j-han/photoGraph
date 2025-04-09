@@ -90,7 +90,7 @@ function App() {
       case 'home':
         return <Home />;
       case 'projects':
-        return <ProjectPage onSelectProject={handleSelectProject} />;
+        return <ProjectPage onSelectProject={handleSelectProject} userData={userData} />;
       case 'projectDetail':
         return <ProjectDetail project={selectedProject} onBack={() => setActiveSection('projects')} />;
       case 'login':
