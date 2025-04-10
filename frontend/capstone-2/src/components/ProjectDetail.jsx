@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import supabase from "./Supabase";
+import imageCompression from "browser-image-compression";
 
 import ScatterPlot from "./Scatterplot";
 import QueryPanel from "./QueryPanel";
@@ -76,9 +77,9 @@ function ProjectDetail({ project, onBack, onProjectUpdate }) {
     }
   };
 
+  // Combined file processing function:
   const handleFileChange = async (e) => {
     console.log("Files Changed:", e.target.files);
-
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
@@ -89,7 +90,7 @@ function ProjectDetail({ project, onBack, onProjectUpdate }) {
       "image/jpg",
     ];
 
-    // Process each file sequentially (or you can use Promise.all for parallel processing)
+    // Process each file one by one.
     for (const file of files) {
       // Validate file type.
       if (!validImageTypes.includes(file.type)) {
@@ -97,21 +98,67 @@ function ProjectDetail({ project, onBack, onProjectUpdate }) {
         continue;
       }
 
-      // Create FormData for the file.
-      const formData = new FormData();
-      formData.append("file", file);
-
       try {
-        // --- Step 1: Extract CLIP Embeddings ---
-        // Call your first endpoint for CLIP extraction.
+        // --- Step 1: Compress the Image ---
+        const options = {
+          maxSizeMB: 0.1, // Target a small file (adjust as needed)
+          maxWidthOrHeight: 800, // Maximum dimensions (adjust as needed)
+          useWebWorker: true,
+        };
+        const compressedFile = await imageCompression(file, options);
+        console.log(
+          `Compressed file size for ${file.name}: ${compressedFile.size} bytes`
+        );
+
+        // --- Step 2: Upload the Compressed Image to the Bucket ---
+        const bucketName = "images"; // Your Supabase bucket name
+        const filePath = `${project.id}/${Date.now()}_${compressedFile.name}`;
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from(bucketName)
+          .upload(filePath, compressedFile, {
+            cacheControl: "3600",
+            upsert: false,
+          });
+        if (uploadError) {
+          console.error("Error uploading image:", uploadError);
+          continue;
+        }
+        const { publicURL, error: urlError } = supabase.storage
+          .from(bucketName)
+          .getPublicUrl(filePath);
+        if (urlError) {
+          console.error("Error getting public URL:", urlError);
+          continue;
+        }
+        console.log("Uploaded image public URL:", publicURL);
+
+        // --- Step 3: Insert a New Data Point with the Image URL ---
+        const { data: dpData, error: dpError } = await supabase
+          .from("data_points")
+          .insert({
+            project_id: project.id,
+            label: file.name, // Use file name as label (or adjust as needed)
+            image_url: publicURL, // Link to the stored image
+          })
+          .select();
+        if (dpError) {
+          console.error("Error creating data point:", dpError);
+          continue;
+        }
+        const newDataPointId = dpData[0].id;
+        console.log("New data point created with ID:", newDataPointId);
+
+        // --- Step 4: Extract CLIP Embedding (Optional) ---
+        // Prepare a FormData payload for the compressed file.
+        const formData = new FormData();
+        formData.append("file", compressedFile);
         const responseClip = await fetch(
-          "http://127.0.0.1:5000/extract-clip-embeddings", // Change URL as needed.
+          "http://127.0.0.1:5000/extract-clip-embeddings",
           {
             method: "POST",
             body: formData,
           }
         );
-
         if (!responseClip.ok) {
           const errorData = await responseClip.json();
           console.error(
@@ -120,29 +167,12 @@ function ProjectDetail({ project, onBack, onProjectUpdate }) {
           );
           continue;
         }
-
         const clipResults = await responseClip.json();
-        // Assume the endpoint returns an array of objects:
-        // [ { "filename": "name", "clip_embedding": [...] } ]
-        const { clip_embedding } = clipResults[0]; // For one file.
+        // Assume the returned object has a field named clip_embedding.
+        const { clip_embedding } = clipResults[0];
         console.log(`CLIP embedding for ${file.name}:`, clip_embedding);
 
-        // --- Step 2: Insert the CLIP Embedding into the Database ---
-        // First, create a new data point.
-        const { data: dpData, error: dpError } = await supabase
-          .from("data_points")
-          .insert({ project_id: project.id, label: file.name })
-          .select();
-
-        if (dpError) {
-          console.error("Error creating data point:", dpError);
-          continue;
-        }
-
-        const newDataPointId = dpData[0].id;
-        console.log("New data point created with ID:", newDataPointId);
-
-        // --- Step 3: Insert the CLIP Embedding into the Database ---
+        // --- Step 5: Insert the CLIP Embedding into the Database ---
         const { data: clipData, error: clipError } = await supabase
           .from("clip_embeddings")
           .insert({ data_point_id: newDataPointId, embedding: clip_embedding });
@@ -150,14 +180,15 @@ function ProjectDetail({ project, onBack, onProjectUpdate }) {
           console.error("Error inserting CLIP embedding:", clipError);
           continue;
         }
-
-        console.log(`CLIP embedding inserted for data_point_id ${newDataPointId}`);
+        console.log(
+          `CLIP embedding inserted for data_point_id ${newDataPointId}`
+        );
       } catch (err) {
-        console.error("Error processing file (CLIP step):", file.name, err);
+        console.error("Error processing file:", file.name, err);
       }
-    } // End for loop over files
+    } // End for loop
 
-    // --- Step 3: Call the PCA Extraction Endpoint ---
+    // --- Step 6: Call the PCA Extraction Endpoint (if needed) ---
     try {
       const responsePCA = await fetch(
         "http://127.0.0.1:5000/extract-pca-embeddings",
@@ -172,21 +203,20 @@ function ProjectDetail({ project, onBack, onProjectUpdate }) {
         const pcaResults = await responsePCA.json();
         console.log("PCA results:", pcaResults);
 
-        // For each PCA embedding result, insert it into the database.
+        // For each PCA result, upsert into the pca_embeddings table.
         for (const result of pcaResults) {
           const { data_point_id, pca_embedding } = result;
-          const { data: pcaData, error: pcaError } = await supabase
+          const { error: pcaError } = await supabase
             .from("pca_embeddings")
             .upsert({ data_point_id: data_point_id, embedding: pca_embedding });
-
           if (pcaError) {
             console.error(
-              `Error inserting PCA embedding for data_point_id ${data_point_id}:`,
+              `Error upserting PCA embedding for data_point_id ${data_point_id}:`,
               pcaError
             );
           } else {
             console.log(
-              `PCA embedding inserted for data_point_id ${data_point_id}`
+              `PCA embedding upserted for data_point_id ${data_point_id}`
             );
           }
         }
@@ -197,6 +227,128 @@ function ProjectDetail({ project, onBack, onProjectUpdate }) {
 
     triggerRefresh();
   };
+
+  // const handleFileChange = async (e) => {
+  //   console.log("Files Changed:", e.target.files);
+
+  //   const files = e.target.files;
+  //   if (!files || files.length === 0) return;
+
+  //   const validImageTypes = [
+  //     "image/jpeg",
+  //     "image/png",
+  //     "image/gif",
+  //     "image/jpg",
+  //   ];
+
+  //   // Process each file sequentially (or you can use Promise.all for parallel processing)
+  //   for (const file of files) {
+  //     // Validate file type.
+  //     if (!validImageTypes.includes(file.type)) {
+  //       console.error(`File ${file.name} is not a supported image type.`);
+  //       continue;
+  //     }
+
+  //     // Create FormData for the file.
+  //     const formData = new FormData();
+  //     formData.append("file", file);
+
+  //     try {
+  //       // --- Step 1: Extract CLIP Embeddings ---
+  //       // Call your first endpoint for CLIP extraction.
+  //       const responseClip = await fetch(
+  //         "http://127.0.0.1:5000/extract-clip-embeddings", // Change URL as needed.
+  //         {
+  //           method: "POST",
+  //           body: formData,
+  //         }
+  //       );
+
+  //       if (!responseClip.ok) {
+  //         const errorData = await responseClip.json();
+  //         console.error(
+  //           `Error from CLIP embeddings endpoint for ${file.name}:`,
+  //           errorData
+  //         );
+  //         continue;
+  //       }
+
+  //       const clipResults = await responseClip.json();
+  //       // Assume the endpoint returns an array of objects:
+  //       // [ { "filename": "name", "clip_embedding": [...] } ]
+  //       const { clip_embedding } = clipResults[0]; // For one file.
+  //       console.log(`CLIP embedding for ${file.name}:`, clip_embedding);
+
+  //       // --- Step 2: Insert the CLIP Embedding into the Database ---
+  //       // First, create a new data point.
+  //       const { data: dpData, error: dpError } = await supabase
+  //         .from("data_points")
+  //         .insert({ project_id: project.id, label: file.name })
+  //         .select();
+
+  //       if (dpError) {
+  //         console.error("Error creating data point:", dpError);
+  //         continue;
+  //       }
+
+  //       const newDataPointId = dpData[0].id;
+  //       console.log("New data point created with ID:", newDataPointId);
+
+  //       // --- Step 3: Insert the CLIP Embedding into the Database ---
+  //       const { data: clipData, error: clipError } = await supabase
+  //         .from("clip_embeddings")
+  //         .insert({ data_point_id: newDataPointId, embedding: clip_embedding });
+  //       if (clipError) {
+  //         console.error("Error inserting CLIP embedding:", clipError);
+  //         continue;
+  //       }
+
+  //       console.log(`CLIP embedding inserted for data_point_id ${newDataPointId}`);
+  //     } catch (err) {
+  //       console.error("Error processing file (CLIP step):", file.name, err);
+  //     }
+  //   } // End for loop over files
+
+  //   // --- Step 3: Call the PCA Extraction Endpoint ---
+  //   try {
+  //     const responsePCA = await fetch(
+  //       "http://127.0.0.1:5000/extract-pca-embeddings",
+  //       {
+  //         method: "POST",
+  //       }
+  //     );
+  //     if (!responsePCA.ok) {
+  //       const errorData = await responsePCA.json();
+  //       console.error("Error from PCA extraction endpoint:", errorData);
+  //     } else {
+  //       const pcaResults = await responsePCA.json();
+  //       console.log("PCA results:", pcaResults);
+
+  //       // For each PCA embedding result, insert it into the database.
+  //       for (const result of pcaResults) {
+  //         const { data_point_id, pca_embedding } = result;
+  //         const { data: pcaData, error: pcaError } = await supabase
+  //           .from("pca_embeddings")
+  //           .upsert({ data_point_id: data_point_id, embedding: pca_embedding });
+
+  //         if (pcaError) {
+  //           console.error(
+  //             `Error inserting PCA embedding for data_point_id ${data_point_id}:`,
+  //             pcaError
+  //           );
+  //         } else {
+  //           console.log(
+  //             `PCA embedding inserted for data_point_id ${data_point_id}`
+  //           );
+  //         }
+  //       }
+  //     }
+  //   } catch (err) {
+  //     console.error("Error calling PCA extraction endpoint:", err);
+  //   }
+
+  //   triggerRefresh();
+  // };
 
   // If project is null or undefined
   if (!localProject) {
