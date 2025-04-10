@@ -123,13 +123,15 @@ function ProjectDetail({ project, onBack, onProjectUpdate }) {
           console.error("Error uploading image:", uploadError);
           continue;
         }
-        const { publicURL, error: urlError } = supabase.storage
+        const { data, error: urlError } = supabase.storage
           .from(bucketName)
           .getPublicUrl(filePath);
+          
         if (urlError) {
           console.error("Error getting public URL:", urlError);
           continue;
         }
+        const publicURL = data.publicUrl;
         console.log("Uploaded image public URL:", publicURL);
 
         // --- Step 3: Insert a New Data Point with the Image URL ---
