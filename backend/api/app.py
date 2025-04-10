@@ -107,8 +107,6 @@ def extract_pca_embeddings():
         pca = PCA(n_components=n_components)
         pca_embeddings = pca.fit_transform(clip_embeddings)
         
-        # Optionally, you might insert these PCA embeddings into your pca_embeddings table here.
-        # For demonstration, we build a results array and return it.
         results = []
         for i, record in enumerate(clip_data):
             results.append({
@@ -124,14 +122,11 @@ def extract_pca_embeddings():
 @app.route('/retrieve-pca-embeddings', methods=['GET'])
 def retrieve_pca_embeddings():
     try:
-        # Retrieve all PCA embeddings from the pca_embeddings table.
-        # Adjust the method chain based on your supabase-py version.
         response = supabase.table("pca_embeddings").select("data_point_id, embedding, data_points(label)").execute()
         pca_data = response.data
         if not pca_data:
             return jsonify({"error": "No PCA embeddings found"}), 404
         
-        # Optionally, you can log the retrieved data for debugging:
         print("Retrieved PCA embeddings:", pca_data)
         
         return jsonify(pca_data), 200
