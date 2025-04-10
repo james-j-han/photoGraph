@@ -1,45 +1,43 @@
-/* QueryPanel.css */
 .query-panel {
-  border: 1px solid #ccc;
+  /* border: 1px solid #ccc; */
   padding: 1rem;
-  margin-top: 20px;
-  border-radius: 8px;
-  background-color: var(--color-background);
+  /* margin-top: 20px; */
+  /* border-radius: 8px; */
+  /* background-color: var(--color-background); */
 }
 
 .query-panel-title {
+  text-align: center;
   font-size: 1.75rem;
   margin-bottom: 1rem;
   color: var(--color-text-dark);
 }
 
-/* Style for the form */
+.query-selection {
+  text-align: center;
+}
+
 .query-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  margin-bottom: 1rem;
 }
 
-.query-form label {
-  display: block;
-  font-size: 1rem;
-  margin-bottom: 0.5rem;
+.form-group {
+  margin-top: 10px;
 }
 
-.query-form input[type="text"],
-.query-form input[type="number"] {
-  padding: 0.5rem;
-  width: 100%;
-  box-sizing: border-box;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+.small-input {
+  width: 50px;
 }
 
-.query-form input[type="file"] {
-  margin-top: 0.5rem;
+.text-input {
+  width: 300px;
 }
 
-.query-form button {
+/* .file-input {
+  margin-left: 10px;
+} */
+
+.submit-button {
   padding: 0.5rem 1rem;
   border: 1px solid var(--color-text-light);
   background: var(--color-primary);
@@ -49,16 +47,50 @@
   transition: background 0.2s ease;
 }
 
-.query-form button:hover {
+.submit-button:hover {
   background: var(--color-background);
   color: var(--color-text-dark);
   border: 1px solid var(--color-primary);
 }
 
-/* Adjust spacing if needed on small screens */
+/* Container for query results */
+.query-results-container {
+  max-height: 400px;  /* Fixed maximum height */
+  overflow-y: auto;   /* Scrollable vertically if content exceeds height */
+  border-top: 1px solid #ddd;
+  padding-top: 1rem;
+  margin-top: 20px;
+}
+
+/* Grid layout for results: 2 columns */
+.query-results-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+/* Style for individual result cards */
+.result-card {
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 4px;
+  text-align: center;
+  background-color: #fff;
+}
+
+.result-similarity,
+.result-label {
+  margin-bottom: 5px;
+}
+
+.result-image {
+  max-width: 100px;
+  border-radius: 4px;
+}
+
+/* Media query for smaller screens: adjust grid columns if needed */
 @media (max-width: 600px) {
-  .query-panel {
-    margin-top: 10px;
-    padding: 0.75rem;
+  .query-results-grid {
+    grid-template-columns: 1fr;
   }
 }

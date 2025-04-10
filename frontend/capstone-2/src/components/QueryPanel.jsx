@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import "../styles/QueryPanel.css";
 
 function QueryPanel() {
   const [queryType, setQueryType] = useState("text"); // "text" or "image"
@@ -55,6 +56,7 @@ function QueryPanel() {
           body: formData,
         });
       }
+
       if (!response.ok) {
         const errData = await response.json();
         console.error("Query error:", errData);
@@ -71,8 +73,8 @@ function QueryPanel() {
   return (
     <div className="query-panel">
       <h2 className="query-panel-title">Query Top-k Similar Images</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
+      <form className="query-form" onSubmit={handleSubmit}>
+        <div className="query-selection">
           <label>
             <input
               type="radio"
@@ -92,7 +94,7 @@ function QueryPanel() {
             Image Query
           </label>
         </div>
-        <div style={{ marginTop: "10px" }}>
+        <div className="form-group">
           <label>
             Top-k (1-10):{" "}
             <input
@@ -101,12 +103,12 @@ function QueryPanel() {
               onChange={handleTopKChange}
               min="1"
               max="10"
-              style={{ width: "50px" }}
+              className="small-input"
             />
           </label>
         </div>
         {queryType === "text" ? (
-          <div style={{ marginTop: "10px" }}>
+          <div className="form-group">
             <label>
               Enter text:
               <input
@@ -114,45 +116,53 @@ function QueryPanel() {
                 value={textQuery}
                 onChange={handleTextChange}
                 placeholder="Type your query..."
-                style={{ marginLeft: "10px", width: "300px" }}
+                className="text-input"
               />
             </label>
           </div>
         ) : (
-          <div style={{ marginTop: "10px" }}>
+          <div className="form-group">
             <label>
               Select an image:
-              <input type="file" accept="image/*" onChange={handleFileChange} />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="file-input"
+              />
             </label>
           </div>
         )}
-        <div style={{ marginTop: "10px" }}>
-          <button type="submit">Search</button>
+        <div className="form-group">
+          <button type="submit" className="submit-button">
+            Search
+          </button>
         </div>
       </form>
+
       {results && results.length > 0 && (
-        <div style={{ marginTop: "20px" }}>
+        <div className="query-results-container">
           <h4>Query Results:</h4>
-          <ul>
+          <div className="query-results-grid">
             {results.map((result, index) => (
-              <li key={index} style={{ marginBottom: "15px" }}>
-                <div>
+              <div key={index} className="result-card">
+                <div className="result-similarity">
                   <strong>Similarity:</strong>{" "}
                   {result.similarity ? result.similarity.toFixed(2) : "N/A"}
                 </div>
-                <div>
-                  <strong>Label:</strong> {result.label}
+                <div className="result-label">
+                  <strong>Label:</strong> {result.label || "Unnamed"}
                 </div>
                 {result.image_url && (
                   <img
                     src={result.image_url}
                     alt={result.label || "Image"}
-                    style={{ width: "100px", marginTop: "10px" }}
+                    className="result-image"
                   />
                 )}
-              </li>
+              </div>
             ))}
-          </ul>
+          </div>
         </div>
       )}
     </div>
