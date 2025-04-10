@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import Plot from "react-plotly.js";
 
+import "../styles/Scatterplot.css";
+
 function ScatterPlot({ refreshToken }) {
   const [pcaData, setPcaData] = useState([]);
 
@@ -34,7 +36,7 @@ function ScatterPlot({ refreshToken }) {
   const yValues = pcaData.map(item => item.embedding[1]);
 
   return (
-    <div>
+    <div className="responsive-container">
       {/* <h2>PCA Embeddings Scatter Plot</h2> */}
       <Plot
         data={[
@@ -44,23 +46,25 @@ function ScatterPlot({ refreshToken }) {
             x: xValues,
             y: yValues,
             marker: {
-              // Use the xValues as the gradient color (you can also use yValues or a custom metric)
               color: xValues,
-              colorscale: 'Viridis',   // Choose any Plotly colorscale you prefer
+              colorscale: 'Viridis',
               size: 8,
-              colorbar: { title: 'Component 1' } // Optional: shows a color scale legend
+              colorbar: { title: 'Component 1' }
             },
             text: pcaData.map((record) => `Name: ${record.data_points.label}`),
             hoverinfo: 'text'
           },
         ]}
         layout={{
-          width: 800,
-          height: 600,
+          autosize: true,
           title: 'PCA Embeddings Scatter Plot',
           xaxis: { title: 'PCA Component 1', zeroline: false },
           yaxis: { title: 'PCA Component 2', zeroline: false },
+          // margin: { l: 10, r: 10, t: 20, b: 20 },
         }}
+        config={{ responsive: true }}
+        useResizeHandler={true}
+        style={{ width: "100%", height: "100%" }}
       />
     </div>
   );
