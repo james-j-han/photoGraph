@@ -82,8 +82,8 @@ function QueryPanel() {
   };
 
   return (
-    <div style={{ marginTop: "20px", padding: "10px", border: "1px solid #ccc" }}>
-      <h3>Query Top-k Similar Images</h3>
+    <div className="query-panel">
+      <h2 className="query-panel-title">Query Top-k Similar Images</h2>
       <form onSubmit={handleSubmit}>
         <div>
           <label>
