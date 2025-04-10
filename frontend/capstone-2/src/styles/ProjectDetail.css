@@ -70,17 +70,34 @@
   color: var(--color-text-dark);
 }
 
-.scatterplot-area {
-  min-height: 300px;
-  border: 1px solid var(--color-secondary);
-  background: var(--color-text-light);
-  border-radius: 8px;
+.visualization-container {
+  min-height: 600px;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  font-weight: bold;
-  color: var(--color-text-dark);
+  flex-direction: row;
+  gap: 1rem;
+  margin-top: 1rem;
 }
+
+.scatterplot-box {
+  flex: 3;
+  border: 1px solid var(--color-secondary);
+  border-radius: 8px;
+  background-color: var(--color-text-light);
+  padding: 1rem;
+}
+
+.query-panel-box {
+  flex: 1;
+  border: 1px solid var(--color-secondary);
+  border-radius: 8px;
+  background-color: var(--color-text-light);
+  padding: 1rem;
+}
+
+/* .scatterplot-box .js-plotly-plot {
+  max-width: 100%;
+  box-sizing: border-box;
+} */
 
 button {
   border: 1px solid var(--color-text-light);
@@ -123,5 +140,14 @@ button:hover {
     width: 100%;
     text-align: left;
     /* margin-top: 1.5rem; */
+  }
+
+  .visualization-container {
+    flex-direction: column;
+  }
+
+  .scatterplot-box,
+  .query-panel-box {
+    flex: 1; /* Both take equal space when stacked vertically */
   }
 }

@@ -1,0 +1,14 @@
+.responsive-container {
+  margin-top: 40px;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  position: relative; 
+  max-height: 500px;
+}
+
+@media (max-width: 600px) {
+  .responsive-container {
+    aspect-ratio: 4 / 3;
+    /* max-height: 300px; */
+  }
+}

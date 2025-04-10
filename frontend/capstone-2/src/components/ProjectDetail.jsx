@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import supabase from "./Supabase";
 
 import ScatterPlot from "./Scatterplot";
+import QueryPanel from "./QueryPanel";
 
 import "../styles/ProjectDetail.css";
 
@@ -247,9 +248,18 @@ function ProjectDetail({ project, onBack, onProjectUpdate }) {
         Back to Projects
       </button>
 
-      <div className="scatterplot-area">
-        {/* {is3D ? "3D Scatter Plot" : "2D Scatter Plot"} */}
+      {/* <div className="scatterplot-area">
         <ScatterPlot refreshToken={refreshToken} />
+        <QueryPanel />
+      </div> */}
+
+      <div className="visualization-container">
+        <div className="scatterplot-box">
+          <ScatterPlot refreshToken={refreshToken} />
+        </div>
+        <div className="query-panel-box">
+          <QueryPanel />
+        </div>
       </div>
 
       <input
