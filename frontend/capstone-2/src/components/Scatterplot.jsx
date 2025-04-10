@@ -37,7 +37,7 @@ function ScatterPlot({ refreshToken }) {
 
   return (
     <div className="responsive-container">
-      {/* <h2>PCA Embeddings Scatter Plot</h2> */}
+      <h2>PCA Embeddings Scatter Plot</h2>
       <Plot
         data={[
           {
@@ -58,9 +58,9 @@ function ScatterPlot({ refreshToken }) {
         layout={{
           autosize: true,
           title: 'PCA Embeddings Scatter Plot',
-          xaxis: { title: 'PCA Component 1', zeroline: false },
-          yaxis: { title: 'PCA Component 2', zeroline: false },
-          // margin: { l: 10, r: 10, t: 20, b: 20 },
+          xaxis: { title: { text: 'PCA Component 1', font: { size: 14 } }, zeroline: false },
+          yaxis: { title: { text: 'PCA Component 2', font: { size: 14 } }, zeroline: false },
+          margin: { l: 60, r: 10, t: 10, b: 60 },
         }}
         config={{ responsive: true }}
         useResizeHandler={true}
