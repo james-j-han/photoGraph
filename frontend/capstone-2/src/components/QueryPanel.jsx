@@ -1,22 +1,18 @@
 import React, { useState } from "react";
 
 function QueryPanel() {
-  // State for query type, top-k value, and the query content
   const [queryType, setQueryType] = useState("text"); // "text" or "image"
-  const [topK, setTopK] = useState(5);               // default 5 results
-  const [textQuery, setTextQuery] = useState("");      // if queryType is 'text'
-  const [imageFile, setImageFile] = useState(null);    // if queryType is 'image'
+  const [topK, setTopK] = useState(5);
+  const [textQuery, setTextQuery] = useState("");
+  const [imageFile, setImageFile] = useState(null);
   const [results, setResults] = useState([]);
 
-  // Handler when user selects query type via radio buttons
   const handleQueryTypeChange = (e) => {
     setQueryType(e.target.value);
-    // Clear previous input
     setTextQuery("");
     setImageFile(null);
   };
 
-  // Handler for topK input
   const handleTopKChange = (e) => {
     const val = parseInt(e.target.value, 10);
     if (val >= 1 && val <= 10) {
@@ -24,26 +20,21 @@ function QueryPanel() {
     }
   };
 
-  // Handler for text input change
   const handleTextChange = (e) => {
     setTextQuery(e.target.value);
   };
 
-  // Handler for image file selection
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       setImageFile(e.target.files[0]);
     }
   };
 
-  // Handler for form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       let response;
       if (queryType === "text") {
-        // Create payload for text query
         const payload = {
           type: "text",
           top_k: topK,
@@ -55,19 +46,15 @@ function QueryPanel() {
           body: JSON.stringify(payload),
         });
       } else if (queryType === "image") {
-        // Create FormData for image query
         const formData = new FormData();
         formData.append("file", imageFile);
         formData.append("top_k", topK);
-        // Indicate in the payload that this is an image query.
         formData.append("type", "image");
-
         response = await fetch("http://127.0.0.1:5000/query", {
           method: "POST",
           body: formData,
         });
       }
-
       if (!response.ok) {
         const errData = await response.json();
         console.error("Query error:", errData);
@@ -143,22 +130,26 @@ function QueryPanel() {
           <button type="submit">Search</button>
         </div>
       </form>
-      {/* Optionally, display query results */}
       {results && results.length > 0 && (
         <div style={{ marginTop: "20px" }}>
           <h4>Query Results:</h4>
           <ul>
             {results.map((result, index) => (
-              <li key={index}>
-                Data Point ID: {result.data_point_id}, Similarity Score:{" "}
-                {result.similarity ? result.similarity.toFixed(2) : "N/A"}
-                {result.image_url ? (
+              <li key={index} style={{ marginBottom: "15px" }}>
+                <div>
+                  <strong>Similarity:</strong>{" "}
+                  {result.similarity ? result.similarity.toFixed(2) : "N/A"}
+                </div>
+                <div>
+                  <strong>Label:</strong> {result.label}
+                </div>
+                {result.image_url && (
                   <img
                     src={result.image_url}
-                    alt="similar"
-                    style={{ width: "100px", marginLeft: "10px" }}
+                    alt={result.label || "Image"}
+                    style={{ width: "100px", marginTop: "10px" }}
                   />
-                ) : null}
+                )}
               </li>
             ))}
           </ul>
