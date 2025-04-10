@@ -10,18 +10,17 @@ import os
 from supabase import create_client, Client
 from flask_cors import CORS
 import supabase
+
 print("Supabase version:", supabase.__version__)
 
-load_dotenv()  # Load variables from your .env file
+load_dotenv()
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 # Supabase configuration using environment variables
 SUPABASE_URL = os.environ.get("REACT_APP_SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("REACT_APP_SUPABASE_ANON_KEY")
-
-# Ensure the variables are correctly loaded
 if not SUPABASE_URL or not SUPABASE_KEY:
     raise ValueError("Missing Supabase URL or Key in environment variables.")
 
@@ -35,82 +34,117 @@ model, preprocess = clip.load("ViT-B/32", device=device)
 # Helper function to extract CLIP embeddings.
 def get_clip_embedding(img_tensor):
     with torch.no_grad():
-        # Compute the embedding using the CLIP model.
         embedding = model.encode_image(img_tensor.to(device))
-        # Normalize the embedding.
         embedding /= embedding.norm(dim=-1, keepdim=True)
-    return embedding.cpu().numpy()
+    return embedding.cpu().numpy()  # Expected shape: (1, 512)
 
-@app.route('/extract-embeddings', methods=['POST'])
-def extract_embeddings():
+##############################
+#  Endpoint 1: Extract CLIP Embeddings
+##############################
+@app.route('/extract-clip-embeddings', methods=['POST'])
+def extract_clip_embeddings():
     try:
-        # Get the image file from the request
+        # Ensure at least one file is provided.
         if 'file' not in request.files:
             return jsonify({"error": "No file provided"}), 400
-        file = request.files['file']
-        img = Image.open(file.stream)
 
-        # Preprocess the image as needed
+        # Retrieve all files (supports multiple image upload)
+        files = request.files.getlist('file')
+        if not files or len(files) == 0:
+            return jsonify({"error": "No files provided"}), 400
+
+        # Use a preprocessing transform (or use the 'preprocess' provided by CLIP)
         transform = transforms.Compose([
             transforms.Resize((224, 224)),
             transforms.ToTensor(),
-            # ... other normalization transforms
+            # Add normalization if your model requires it.
         ])
-        img_tensor = transform(img).unsqueeze(0)  # add batch dimension
 
-        # Extract CLIP embedding using your model
-        clip_embedding = get_clip_embedding(img_tensor)  # Returns a high-dimensional NumPy array
+        results = []
+        for file in files:
+            # Open image and convert to RGB (ensuring 3 channels)
+            img = Image.open(file.stream).convert("RGB")
+            img_tensor = transform(img).unsqueeze(0)  # shape: (1, 3, 224, 224)
+            clip_emb = get_clip_embedding(img_tensor)  # Expected shape: (1,512)
+            
+            results.append({
+                "filename": file.filename,
+                "clip_embedding": clip_emb[0].tolist()  # 1D array of length 512
+            })
+        return jsonify(results), 200
 
-        # Reduce dimensions using PCA (this is an example; in practice, PCA may be pre-fitted)
-        pca = PCA(n_components=50)
-        # Note: You likely want to fit PCA on your entire dataset offline
-        pca_embedding = pca.fit_transform(clip_embedding.reshape(1, -1))  # shape (1,50)
-
-        return jsonify({
-            "clip_embedding": clip_embedding.tolist(),
-            "pca_embedding": pca_embedding.tolist()
-        }), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# @app.route('/register', methods=['POST'])
-# def register():
-#     data = request.get_json()
-#     auth_id = data.get('auth_id')
-#     first_name = data.get('first_name')
-#     last_name = data.get('last_name')
-    
-#     if not auth_id or not first_name or not last_name:
-#         return jsonify({'error': 'Missing required fields'}), 400
-    
-#     # Check if user exists
-#     existing_user = supabase.table('users').select("*").eq('id', auth_id).execute()
-#     if existing_user.data:  # If there's already a record
-#         return jsonify({'error': 'User already registered'}), 409
+##############################
+#  Endpoint 2: Extract PCA Embeddings
+##############################
+@app.route('/extract-pca-embeddings', methods=['POST'])
+def extract_pca_embeddings():
+    try:
+        # Retrieve all clip embeddings from the database.
+        response = supabase.table("clip_embeddings").select("data_point_id, embedding").execute()
+        clip_data = response.data
+        if not clip_data:
+            return jsonify({"error": "No clip embeddings found"}), 404
 
-#     # Insert new user into the 'users' table
-#     response = supabase.table('users').insert({
-#         'id': auth_id,
-#         'first_name': first_name,
-#         'last_name': last_name
-#     }).execute()
+        import json
 
-#     # Handle response without status codes
-#     if not response.data:
-#         return jsonify({
-#             'error': 'Insertion failed',
-#             'details': 'No data returned in the response.'
-#         }), 400
-    
-#     return jsonify({
-#         'message': 'User registered successfully',
-#         'data': response.data
-#     }), 201
+        # Build a list of embeddings.
+        clip_embeddings = []
+        for record in clip_data:
+            emb_val = record["embedding"]
+            if isinstance(emb_val, str):
+                emb_list = json.loads(emb_val)
+            else:
+                emb_list = emb_val
+            clip_embeddings.append(emb_list)
 
+        clip_embeddings = np.array(clip_embeddings, dtype=float)  # Expected shape: (N, 512)
+        num_samples = clip_embeddings.shape[0]
+        n_components = 50 if num_samples >= 50 else num_samples
+
+        pca = PCA(n_components=n_components)
+        pca_embeddings = pca.fit_transform(clip_embeddings)
+        
+        # Optionally, you might insert these PCA embeddings into your pca_embeddings table here.
+        # For demonstration, we build a results array and return it.
+        results = []
+        for i, record in enumerate(clip_data):
+            results.append({
+                "data_point_id": record["data_point_id"],
+                "pca_embedding": pca_embeddings[i].tolist()
+            })
+        
+        return jsonify(results), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/retrieve-pca-embeddings', methods=['GET'])
+def retrieve_pca_embeddings():
+    try:
+        # Retrieve all PCA embeddings from the pca_embeddings table.
+        # Adjust the method chain based on your supabase-py version.
+        response = supabase.table("pca_embeddings").select("data_point_id, embedding, data_points(label)").execute()
+        pca_data = response.data
+        if not pca_data:
+            return jsonify({"error": "No PCA embeddings found"}), 404
+        
+        # Optionally, you can log the retrieved data for debugging:
+        print("Retrieved PCA embeddings:", pca_data)
+        
+        return jsonify(pca_data), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+##############################
+# Test Index Endpoint
+##############################
 @app.route('/')
 def index():
-    response = supabase.table('users').select("*").execute()
-    return jsonify(response.data)
+    return "Image Embedding and Reconstruction API"
 
 if __name__ == '__main__':
     app.run(debug=True)
