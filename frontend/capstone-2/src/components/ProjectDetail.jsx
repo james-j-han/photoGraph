@@ -1,10 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import supabase from "./Supabase";
+
+import ScatterPlot from "./Scatterplot";
+
 import "../styles/ProjectDetail.css";
 
 function ProjectDetail({ project, onBack, onProjectUpdate }) {
   const fileInputRef = useRef(null);
   const [localProject, setLocalProject] = useState(project);
+  const [refreshToken, setRefreshToken] = useState(0);
   const [is3D, setIs3D] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(project ? project.name : "");
@@ -15,6 +19,11 @@ function ProjectDetail({ project, onBack, onProjectUpdate }) {
     setLocalProject(project);
     setEditedName(project ? project.name : "");
   }, [project]);
+
+  // Call this function after successfully inserting new embeddings (or after PCA extraction)
+  const triggerRefresh = () => {
+    setRefreshToken((prev) => prev + 1);
+  };
 
   // Toggle edit mode when the project name is clicked.
   const handleEdit = () => {
@@ -67,74 +76,125 @@ function ProjectDetail({ project, onBack, onProjectUpdate }) {
   };
 
   const handleFileChange = async (e) => {
+    console.log("Files Changed:", e.target.files);
+
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    const validImageTypes = ["image/jpeg", "image/png", "image/gif"]; // Add or adjust types based on what CLIP and PCA accept
+    const validImageTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/gif",
+      "image/jpg",
+    ];
 
+    // Process each file sequentially (or you can use Promise.all for parallel processing)
     for (const file of files) {
-      // Check the file's MIME type
+      // Validate file type.
       if (!validImageTypes.includes(file.type)) {
         console.error(`File ${file.name} is not a supported image type.`);
-        continue; // Skip processing for this file
+        continue;
       }
 
-      // Create a FormData instance to hold the image file.
+      // Create FormData for the file.
       const formData = new FormData();
       formData.append("file", file);
 
       try {
-        // Change the URL to match your backend environment.
-        // For local testing, you might use: "http://localhost:5000/extract-embeddings"
-        // For production, use your deployed URL.
-        const response = await fetch(
-          "https://photograph-4lb1.onrender.com/extract-embeddings",
+        // --- Step 1: Extract CLIP Embeddings ---
+        // Call your first endpoint for CLIP extraction.
+        const responseClip = await fetch(
+          "http://127.0.0.1:5000/extract-clip-embeddings", // Change URL as needed.
           {
             method: "POST",
             body: formData,
           }
         );
 
-        // Check for errors in the response.
-        if (!response.ok) {
-          const errorData = await response.json();
-          console.error(`Error from embeddings endpoint:`, errorData);
+        if (!responseClip.ok) {
+          const errorData = await responseClip.json();
+          console.error(
+            `Error from CLIP embeddings endpoint for ${file.name}:`,
+            errorData
+          );
           continue;
         }
 
-        // Parse the JSON result.
-        const result = await response.json();
-        console.log(`Embeddings for ${file.name}:`, result);
+        const clipResults = await responseClip.json();
+        // Assume the endpoint returns an array of objects:
+        // [ { "filename": "name", "clip_embedding": [...] } ]
+        const { clip_embedding } = clipResults[0]; // For one file.
+        console.log(`CLIP embedding for ${file.name}:`, clip_embedding);
 
-        // After receiving the embeddings result:
-        const { clip_embedding, pca_embedding } = result;
+        // --- Step 2: Insert the CLIP Embedding into the Database ---
+        // First, create a new data point.
+        const { data: dpData, error: dpError } = await supabase
+          .from("data_points")
+          .insert({ project_id: project.id, label: file.name })
+          .select();
 
-        // Insert the CLIP embedding; using project.id as the data_point_id.
+        if (dpError) {
+          console.error("Error creating data point:", dpError);
+          continue;
+        }
+
+        const newDataPointId = dpData[0].id;
+        console.log("New data point created with ID:", newDataPointId);
+
+        // --- Step 3: Insert the CLIP Embedding into the Database ---
         const { data: clipData, error: clipError } = await supabase
           .from("clip_embeddings")
-          .insert({ data_point_id: project.id, embedding: clip_embedding })
-          .execute();
-
+          .insert({ data_point_id: newDataPointId, embedding: clip_embedding });
         if (clipError) {
-          console.error("Error inserting clip embedding:", clipError);
+          console.error("Error inserting CLIP embedding:", clipError);
           continue;
         }
 
-        // Insert the PCA embedding. Use project.id (instead of dataPointId) and the correct variable name.
-        const { data: pcaData, error: pcaError } = await supabase
-          .from("pca_embeddings")
-          .insert({ data_point_id: project.id, embedding: pca_embedding })
-          .execute();
-
-        if (pcaError) {
-          console.error("Error inserting PCA embedding:", pcaError);
-          continue;
-        }
-        
+        console.log(`CLIP embedding inserted for data_point_id ${newDataPointId}`);
       } catch (err) {
-        console.error("Error extracting embeddings:", err);
+        console.error("Error processing file (CLIP step):", file.name, err);
       }
+    } // End for loop over files
+
+    // --- Step 3: Call the PCA Extraction Endpoint ---
+    try {
+      const responsePCA = await fetch(
+        "http://127.0.0.1:5000/extract-pca-embeddings",
+        {
+          method: "POST",
+        }
+      );
+      if (!responsePCA.ok) {
+        const errorData = await responsePCA.json();
+        console.error("Error from PCA extraction endpoint:", errorData);
+      } else {
+        const pcaResults = await responsePCA.json();
+        console.log("PCA results:", pcaResults);
+
+        // For each PCA embedding result, insert it into the database.
+        for (const result of pcaResults) {
+          const { data_point_id, pca_embedding } = result;
+          const { data: pcaData, error: pcaError } = await supabase
+            .from("pca_embeddings")
+            .upsert({ data_point_id: data_point_id, embedding: pca_embedding });
+
+          if (pcaError) {
+            console.error(
+              `Error inserting PCA embedding for data_point_id ${data_point_id}:`,
+              pcaError
+            );
+          } else {
+            console.log(
+              `PCA embedding inserted for data_point_id ${data_point_id}`
+            );
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Error calling PCA extraction endpoint:", err);
     }
+
+    triggerRefresh();
   };
 
   // If project is null or undefined
@@ -188,7 +248,8 @@ function ProjectDetail({ project, onBack, onProjectUpdate }) {
       </button>
 
       <div className="scatterplot-area">
-        {is3D ? "3D Scatter Plot" : "2D Scatter Plot"}
+        {/* {is3D ? "3D Scatter Plot" : "2D Scatter Plot"} */}
+        <ScatterPlot refreshToken={refreshToken} />
       </div>
 
       <input
