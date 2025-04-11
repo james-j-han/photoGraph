@@ -133,7 +133,7 @@ def extract_pca_embeddings():
 @app.route('/retrieve-pca-embeddings', methods=['GET'])
 def retrieve_pca_embeddings():
     try:
-        response = supabase.table("pca_embeddings").select("data_point_id, embedding, data_points(label)").execute()
+        response = supabase.table("pca_embeddings").select("data_point_id, embedding, data_points(label, image_url)").execute()
         pca_data = response.data
         if not pca_data:
             return jsonify({"error": "No PCA embeddings found"}), 404

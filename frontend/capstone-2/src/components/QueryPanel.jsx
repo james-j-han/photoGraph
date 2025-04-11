@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import "../styles/QueryPanel.css";
 
+const API = "http://127.0.0.1:5000/query";
+
 function QueryPanel() {
   const [queryType, setQueryType] = useState("text"); // "text" or "image"
   const [topK, setTopK] = useState(5);
@@ -41,7 +43,7 @@ function QueryPanel() {
           top_k: topK,
           text: textQuery,
         };
-        response = await fetch("http://127.0.0.1:5000/query", {
+        response = await fetch(API, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),

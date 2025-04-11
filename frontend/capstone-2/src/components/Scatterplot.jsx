@@ -1,23 +1,22 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Plot from "react-plotly.js";
+import Plotly from "plotly.js-dist";
 
 import "../styles/Scatterplot.css";
 
-// const API = "http://127.0.0.1:5000/retrieve-pca-embeddings";
-const API = "http://73.106.25.87:52847/retrieve-pca-embeddings";
-const zoomThreshold = 50;
+const API = "http://127.0.0.1:5000/retrieve-pca-embeddings";
+// const API = "http://73.106.25.87:52847/retrieve-pca-embeddings";
+const zoomThreshold = 0.2;
 
 function ScatterPlot({ refreshToken, is3D }) {
-  const [overlayImages, setOverlayImages] = useState([]);
+  // const [overlayImages, setOverlayImages] = useState([]);
   const plotRef = useRef(null);
   const [pcaData, setPcaData] = useState([]);
 
   // Fetch PCA embeddings from backend
   const fetchPCAEmbeddings = async () => {
     try {
-      const response = await fetch(API, {
-        method: "GET",
-      });
+      const response = await fetch(API, { method: "GET" });
       if (!response.ok) {
         const errorData = await response.json();
         console.error("Error retrieving PCA embeddings:", errorData);
@@ -37,56 +36,52 @@ function ScatterPlot({ refreshToken, is3D }) {
 
   // Process the PCA data to extract coordinates.
   // Here we assume pca_embedding is an array of at least two numbers.
-  const xValues = pcaData.map(item => item.embedding[0]);
-  const yValues = pcaData.map(item => item.embedding[1]);
-  const zValues = pcaData.map(item => item.embedding[2] || 0);
+  const xValues = pcaData.map((item) => item.embedding[0]);
+  const yValues = pcaData.map((item) => item.embedding[1]);
+  const zValues = pcaData.map((item) => item.embedding[2] || 0);
 
-  // Attach a listener for relayout events so we can watch for zoom changes.
-  useEffect(() => {
-    // Only in 2D mode we implement the image overlay.
-    if (!is3D && plotRef.current && plotRef.current.on) {
-      const handleRelayout = (eventData) => {
-        // Check if xaxis range is provided in the event data
-        if (eventData["xaxis.range[0]"] && eventData["xaxis.range[1]"]) {
-          const xMin = parseFloat(eventData["xaxis.range[0]"]);
-          const xMax = parseFloat(eventData["xaxis.range[1]"]);
-          const range = xMax - xMin;
-          console.log("X-axis range:", range);
-          if (range < zoomThreshold) {
-            // Build overlay images using each data point's image_url.
-            const newImages = pcaData.map((record) => ({
-              source: record.image_url,
-              xref: "x",
-              yref: "y",
-              x: record.embedding[0],
-              y: record.embedding[1],
-              // Adjust sizex and sizey based on your data scale.
-              sizex: 5,
-              sizey: 5,
-              xanchor: "center",
-              yanchor: "middle",
-              opacity: 0.8,
-              layer: "above",
-            }));
-            console.log("Overlay images set:", newImages);
-            setOverlayImages(newImages);
-          } else {
-            setOverlayImages([]);
-          }
+  // The relayout event handler. This function will be invoked via the onRelayout prop.
+  const handleRelayout = (eventData) => {
+    // Check if the x-axis range is provided
+    if (eventData["xaxis.range[0]"] && eventData["xaxis.range[1]"]) {
+      const xMin = parseFloat(eventData["xaxis.range[0]"]);
+      const xMax = parseFloat(eventData["xaxis.range[1]"]);
+      const range = xMax - xMin;
+      console.log("X-axis range:", range);
+      if (range < zoomThreshold) {
+        // Filter the PCA data so we only overlay images for points that are visible in the current view.
+        const visibleData = pcaData.filter((record) => {
+          const x = record.embedding[0];
+          return x >= xMin && x <= xMax;
+        });
+
+        // Map to overlay image objects.
+        const newImages = visibleData.map((record) => ({
+          source: record.data_points.image_url,
+          xref: "x",
+          yref: "y",
+          x: record.embedding[0],
+          y: record.embedding[1],
+          sizex: 0.04, // Adjust these values as needed
+          sizey: 0.04,
+          xanchor: "center",
+          yanchor: "middle",
+          opacity: 0.8,
+          layer: "above",
+        }));
+        console.log("Overlay images set:", newImages);
+        // Update images imperatively without forcing a full re-render.
+        if (plotRef.current && plotRef.current.el) {
+          Plotly.relayout(plotRef.current.el, { images: newImages });
         }
-      };
-
-      // Attach listener to the Plot's underlying DOM element.
-      plotRef.current.on("plotly_relayout", handleRelayout);
-
-      // Cleanup listener on component unmount.
-      return () => {
-        if (plotRef.current) {
-          plotRef.current.removeListener("plotly_relayout", handleRelayout);
+      } else {
+        // Clear images when zoomed out.
+        if (plotRef.current && plotRef.current.el) {
+          Plotly.relayout(plotRef.current.el, { images: [] });
         }
-      };
+      }
     }
-  }, [pcaData, is3D, refreshToken]);
+  };
 
   // Define the Plotly trace for 2D; note that we're using "scatter" (not scatter3d).
   const trace2D = {
@@ -101,7 +96,9 @@ function ScatterPlot({ refreshToken, is3D }) {
       colorbar: { title: "Component 1" },
     },
     // Assuming our backend returns a flat property "label"
-    text: pcaData.map((record) => `Label: ${record.label || "Unnamed"}`),
+    text: pcaData.map(
+      (record) => `Label: ${record.data_points.label || "Unnamed"}`
+    ),
     hoverinfo: "text",
     hovertemplate: "%{text}<extra></extra>",
   };
@@ -110,10 +107,16 @@ function ScatterPlot({ refreshToken, is3D }) {
   const layout2D = {
     autosize: true,
     title: "PCA Embeddings Scatter Plot (2D)",
-    xaxis: { title: { text: "PCA Component 1", font: { size: 14 } }, zeroline: false },
-    yaxis: { title: { text: "PCA Component 2", font: { size: 14 } }, zeroline: false },
-    margin: { l: 40, r: 10, t: 40, b: 40 },
-    images: overlayImages, // This will be an empty array when zoomed out.
+    xaxis: {
+      title: { text: "PCA Component 1", font: { size: 14 } },
+      zeroline: false,
+    },
+    yaxis: {
+      title: { text: "PCA Component 2", font: { size: 14 } },
+      zeroline: false,
+    },
+    margin: { l: 40, r: 10, t: 10, b: 40 },
+    // images: overlayImages,
   };
 
   // For a 3D chart, we won’t overlay images the same way.
@@ -122,7 +125,7 @@ function ScatterPlot({ refreshToken, is3D }) {
     mode: "markers",
     x: xValues,
     y: yValues,
-    z: pcaData.map((item) => item.embedding[2] || 0),
+    z: zValues,
     marker: {
       size: 8,
       colorscale: "Viridis",
@@ -142,7 +145,7 @@ function ScatterPlot({ refreshToken, is3D }) {
       yaxis: { title: { text: "PC2", font: { size: 14 } }, zeroline: false },
       zaxis: { title: { text: "PC3", font: { size: 14 } }, zeroline: false },
     },
-    margin: { l: 40, r: 10, t: 40, b: 40 },
+    margin: { l: 40, r: 10, t: 10, b: 40 },
   };
 
   const config = { responsive: true };
@@ -171,7 +174,7 @@ function ScatterPlot({ refreshToken, is3D }) {
           data={[trace2D]}
           layout={layout2D}
           config={config}
-          useResizeHandler={true}
+          onRelayout={handleRelayout}
           style={{ width: "100%", height: "100%" }}
         />
       </div>
