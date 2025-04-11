@@ -230,127 +230,10 @@ function ProjectDetail({ project, onBack, onProjectUpdate }) {
     triggerRefresh();
   };
 
-  // const handleFileChange = async (e) => {
-  //   console.log("Files Changed:", e.target.files);
-
-  //   const files = e.target.files;
-  //   if (!files || files.length === 0) return;
-
-  //   const validImageTypes = [
-  //     "image/jpeg",
-  //     "image/png",
-  //     "image/gif",
-  //     "image/jpg",
-  //   ];
-
-  //   // Process each file sequentially (or you can use Promise.all for parallel processing)
-  //   for (const file of files) {
-  //     // Validate file type.
-  //     if (!validImageTypes.includes(file.type)) {
-  //       console.error(`File ${file.name} is not a supported image type.`);
-  //       continue;
-  //     }
-
-  //     // Create FormData for the file.
-  //     const formData = new FormData();
-  //     formData.append("file", file);
-
-  //     try {
-  //       // --- Step 1: Extract CLIP Embeddings ---
-  //       // Call your first endpoint for CLIP extraction.
-  //       const responseClip = await fetch(
-  //         "http://127.0.0.1:5000/extract-clip-embeddings", // Change URL as needed.
-  //         {
-  //           method: "POST",
-  //           body: formData,
-  //         }
-  //       );
-
-  //       if (!responseClip.ok) {
-  //         const errorData = await responseClip.json();
-  //         console.error(
-  //           `Error from CLIP embeddings endpoint for ${file.name}:`,
-  //           errorData
-  //         );
-  //         continue;
-  //       }
-
-  //       const clipResults = await responseClip.json();
-  //       // Assume the endpoint returns an array of objects:
-  //       // [ { "filename": "name", "clip_embedding": [...] } ]
-  //       const { clip_embedding } = clipResults[0]; // For one file.
-  //       console.log(`CLIP embedding for ${file.name}:`, clip_embedding);
-
-  //       // --- Step 2: Insert the CLIP Embedding into the Database ---
-  //       // First, create a new data point.
-  //       const { data: dpData, error: dpError } = await supabase
-  //         .from("data_points")
-  //         .insert({ project_id: project.id, label: file.name })
-  //         .select();
-
-  //       if (dpError) {
-  //         console.error("Error creating data point:", dpError);
-  //         continue;
-  //       }
-
-  //       const newDataPointId = dpData[0].id;
-  //       console.log("New data point created with ID:", newDataPointId);
-
-  //       // --- Step 3: Insert the CLIP Embedding into the Database ---
-  //       const { data: clipData, error: clipError } = await supabase
-  //         .from("clip_embeddings")
-  //         .insert({ data_point_id: newDataPointId, embedding: clip_embedding });
-  //       if (clipError) {
-  //         console.error("Error inserting CLIP embedding:", clipError);
-  //         continue;
-  //       }
-
-  //       console.log(`CLIP embedding inserted for data_point_id ${newDataPointId}`);
-  //     } catch (err) {
-  //       console.error("Error processing file (CLIP step):", file.name, err);
-  //     }
-  //   } // End for loop over files
-
-  //   // --- Step 3: Call the PCA Extraction Endpoint ---
-  //   try {
-  //     const responsePCA = await fetch(
-  //       "http://127.0.0.1:5000/extract-pca-embeddings",
-  //       {
-  //         method: "POST",
-  //       }
-  //     );
-  //     if (!responsePCA.ok) {
-  //       const errorData = await responsePCA.json();
-  //       console.error("Error from PCA extraction endpoint:", errorData);
-  //     } else {
-  //       const pcaResults = await responsePCA.json();
-  //       console.log("PCA results:", pcaResults);
-
-  //       // For each PCA embedding result, insert it into the database.
-  //       for (const result of pcaResults) {
-  //         const { data_point_id, pca_embedding } = result;
-  //         const { data: pcaData, error: pcaError } = await supabase
-  //           .from("pca_embeddings")
-  //           .upsert({ data_point_id: data_point_id, embedding: pca_embedding });
-
-  //         if (pcaError) {
-  //           console.error(
-  //             `Error inserting PCA embedding for data_point_id ${data_point_id}:`,
-  //             pcaError
-  //           );
-  //         } else {
-  //           console.log(
-  //             `PCA embedding inserted for data_point_id ${data_point_id}`
-  //           );
-  //         }
-  //       }
-  //     }
-  //   } catch (err) {
-  //     console.error("Error calling PCA extraction endpoint:", err);
-  //   }
-
-  //   triggerRefresh();
-  // };
+  // Toggle between 2D and 3D
+  const handleToggle3D = () => {
+    setIs3D(prev => !prev);
+  };
 
   // If project is null or undefined
   if (!localProject) {
@@ -391,7 +274,7 @@ function ProjectDetail({ project, onBack, onProjectUpdate }) {
           {/* <span><strong>Model:</strong> {project.llm}</span> */}
           <div>
             <button onClick={handleDatasetClick}>Dataset</button>
-            <button onClick={() => setIs3D((prev) => !prev)}>
+            <button onClick={handleToggle3D}>
               {is3D ? "3D" : "2D"}
             </button>
           </div>
@@ -402,14 +285,9 @@ function ProjectDetail({ project, onBack, onProjectUpdate }) {
         Back to Projects
       </button>
 
-      {/* <div className="scatterplot-area">
-        <ScatterPlot refreshToken={refreshToken} />
-        <QueryPanel />
-      </div> */}
-
       <div className="visualization-container">
         <div className="scatterplot-box">
-          <ScatterPlot refreshToken={refreshToken} />
+          <ScatterPlot is3D={is3D} refreshToken={refreshToken} />
         </div>
         <div className="query-panel-box">
           <QueryPanel />

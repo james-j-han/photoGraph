@@ -3,7 +3,7 @@ import Plot from "react-plotly.js";
 
 import "../styles/Scatterplot.css";
 
-function ScatterPlot({ refreshToken }) {
+function ScatterPlot({ refreshToken, is3D }) {
   const [pcaData, setPcaData] = useState([]);
 
   // Fetch PCA embeddings from your backend
@@ -34,40 +34,81 @@ function ScatterPlot({ refreshToken }) {
   // Here we assume pca_embedding is an array of at least two numbers.
   const xValues = pcaData.map(item => item.embedding[0]);
   const yValues = pcaData.map(item => item.embedding[1]);
+  const zValues = pcaData.map(item => item.embedding[2] || 0);
 
-  return (
-    <div className="responsive-container">
-      <h2>PCA Embeddings Scatter Plot</h2>
-      <Plot
-        data={[
-          {
-            type: 'scatter',
-            mode: 'markers',
-            x: xValues,
-            y: yValues,
-            marker: {
-              color: xValues,
-              colorscale: 'Viridis',
-              size: 8,
-              colorbar: { title: 'Component 1' }
+  if (is3D) {
+    return (
+      <div className="responsive-container">
+        <h2>PCA Embeddings Scatter Plot 3D</h2>
+        <Plot
+          key="3d"
+          data={[
+            {
+              type: 'scatter',
+              mode: 'markers',
+              x: xValues,
+              y: yValues,
+              z: zValues,
+              marker: {
+                color: xValues,
+                colorscale: 'Viridis',
+                size: 8,
+                colorbar: { title: 'Component 1' }
+              },
+              text: pcaData.map((record) => `Name: ${record.data_points.label}`),
+              hoverinfo: 'text'
             },
-            text: pcaData.map((record) => `Name: ${record.data_points.label}`),
-            hoverinfo: 'text'
-          },
-        ]}
-        layout={{
-          autosize: true,
-          title: 'PCA Embeddings Scatter Plot',
-          xaxis: { title: { text: 'PCA Component 1', font: { size: 14 } }, zeroline: false },
-          yaxis: { title: { text: 'PCA Component 2', font: { size: 14 } }, zeroline: false },
-          margin: { l: 60, r: 10, t: 10, b: 60 },
-        }}
-        config={{ responsive: true }}
-        useResizeHandler={true}
-        style={{ width: "100%", height: "100%" }}
-      />
-    </div>
-  );
+          ]}
+          layout={{
+            autosize: true,
+            title: 'PCA Embeddings Scatter Plot',
+            xaxis: { title: { text: 'PCA Component 1', font: { size: 14 } }, zeroline: false },
+            yaxis: { title: { text: 'PCA Component 2', font: { size: 14 } }, zeroline: false },
+            zaxis: { title: { text: 'PCA Component 3', font: { size: 14 } }, zeroline: false },
+            margin: { l: 60, r: 10, t: 10, b: 60 },
+          }}
+          config={{ responsive: true }}
+          useResizeHandler={true}
+          style={{ width: "100%", height: "100%" }}
+        />
+      </div>
+    );
+  } else {
+    return (
+      <div className="responsive-container">
+        <h2>PCA Embeddings Scatter Plot 2D</h2>
+        <Plot
+          key="2d"
+          data={[
+            {
+              type: 'scatter',
+              mode: 'markers',
+              x: xValues,
+              y: yValues,
+              marker: {
+                color: xValues,
+                colorscale: 'Viridis',
+                size: 8,
+                colorbar: { title: 'Component 1' }
+              },
+              text: pcaData.map((record) => `Name: ${record.data_points.label}`),
+              hoverinfo: 'text'
+            },
+          ]}
+          layout={{
+            autosize: true,
+            title: 'PCA Embeddings Scatter Plot',
+            xaxis: { title: { text: 'PCA Component 1', font: { size: 14 } }, zeroline: false },
+            yaxis: { title: { text: 'PCA Component 2', font: { size: 14 } }, zeroline: false },
+            margin: { l: 60, r: 10, t: 10, b: 60 },
+          }}
+          config={{ responsive: true }}
+          useResizeHandler={true}
+          style={{ width: "100%", height: "100%" }}
+        />
+      </div>
+    );
+  }
 }
 
 export default ScatterPlot;
