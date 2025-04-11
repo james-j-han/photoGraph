@@ -3,6 +3,9 @@ import Plot from "react-plotly.js";
 
 import "../styles/Scatterplot.css";
 
+// const API = "http://127.0.0.1:5000/retrieve-pca-embeddings";
+const API = "http://73.106.25.87:52847/retrieve-pca-embeddings";
+
 function ScatterPlot({ refreshToken, is3D }) {
   const [pcaData, setPcaData] = useState([]);
 
@@ -10,7 +13,7 @@ function ScatterPlot({ refreshToken, is3D }) {
   const fetchPCAEmbeddings = async () => {
     try {
       // Update the URL to match your deployed backend endpoint if necessary.
-      const response = await fetch("http://127.0.0.1:5000/retrieve-pca-embeddings", {
+      const response = await fetch(API, {
         method: "GET",
       });
       if (!response.ok) {
@@ -44,7 +47,7 @@ function ScatterPlot({ refreshToken, is3D }) {
           key="3d"
           data={[
             {
-              type: 'scatter',
+              type: 'scatter3d',
               mode: 'markers',
               x: xValues,
               y: yValues,
@@ -56,16 +59,19 @@ function ScatterPlot({ refreshToken, is3D }) {
                 colorbar: { title: 'Component 1' }
               },
               text: pcaData.map((record) => `Name: ${record.data_points.label}`),
-              hoverinfo: 'text'
+              hoverinfo: 'text',
+              hovertemplate: '%{text}<extra></extra>'
             },
           ]}
           layout={{
             autosize: true,
             title: 'PCA Embeddings Scatter Plot',
-            xaxis: { title: { text: 'PCA Component 1', font: { size: 14 } }, zeroline: false },
-            yaxis: { title: { text: 'PCA Component 2', font: { size: 14 } }, zeroline: false },
-            zaxis: { title: { text: 'PCA Component 3', font: { size: 14 } }, zeroline: false },
-            margin: { l: 60, r: 10, t: 10, b: 60 },
+            scene: {
+              xaxis: { title: { text: 'PCA Component 1', font: { size: 14 } }, zeroline: false },
+              yaxis: { title: { text: 'PCA Component 2', font: { size: 14 } }, zeroline: false },
+              zaxis: { title: { text: 'PCA Component 3', font: { size: 14 } }, zeroline: false },
+            },
+            margin: { l: 40, r: 10, t: 10, b: 40 },
           }}
           config={{ responsive: true }}
           useResizeHandler={true}
@@ -100,7 +106,7 @@ function ScatterPlot({ refreshToken, is3D }) {
             title: 'PCA Embeddings Scatter Plot',
             xaxis: { title: { text: 'PCA Component 1', font: { size: 14 } }, zeroline: false },
             yaxis: { title: { text: 'PCA Component 2', font: { size: 14 } }, zeroline: false },
-            margin: { l: 60, r: 10, t: 10, b: 60 },
+            margin: { l: 40, r: 10, t: 10, b: 40 },
           }}
           config={{ responsive: true }}
           useResizeHandler={true}

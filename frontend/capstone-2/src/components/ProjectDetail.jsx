@@ -7,6 +7,13 @@ import QueryPanel from "./QueryPanel";
 
 import "../styles/ProjectDetail.css";
 
+// const EXTRACT_CLIP_EMBEDDING_API = "http://127.0.0.1:5000/extract-clip-embeddings";
+// const EXTRACT_PCA_EMBEDDING_API = "http://127.0.0.1:5000/extract-pca-embeddings";
+
+// Testing API
+const EXTRACT_CLIP_EMBEDDING_API = "http://73.106.25.87:52847/extract-clip-embeddings"
+const EXTRACT_PCA_EMBEDDING_API = "http://73.106.25.87:52847/extract-pca-embeddings"
+
 function ProjectDetail({ project, onBack, onProjectUpdate }) {
   const fileInputRef = useRef(null);
   const [localProject, setLocalProject] = useState(project);
@@ -155,7 +162,7 @@ function ProjectDetail({ project, onBack, onProjectUpdate }) {
         const formData = new FormData();
         formData.append("file", compressedFile);
         const responseClip = await fetch(
-          "http://127.0.0.1:5000/extract-clip-embeddings",
+          EXTRACT_CLIP_EMBEDDING_API,
           {
             method: "POST",
             body: formData,
@@ -193,7 +200,7 @@ function ProjectDetail({ project, onBack, onProjectUpdate }) {
     // --- Step 6: Call the PCA Extraction Endpoint (if needed) ---
     try {
       const responsePCA = await fetch(
-        "http://127.0.0.1:5000/extract-pca-embeddings",
+        EXTRACT_PCA_EMBEDDING_API,
         {
           method: "POST",
         }
