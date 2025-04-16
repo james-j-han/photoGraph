@@ -141,7 +141,7 @@ def retrieve_pca_with_details():
             .execute()
         pca_data = response.data
         if not pca_data:
-            return jsonify({"error": "No PCA embeddings found"}), 404
+            return jsonify([]), 200
 
         # Log for debugging
         print("Retrieved PCA embeddings for project", project_id, ":", pca_data)
