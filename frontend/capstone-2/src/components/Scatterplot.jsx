@@ -11,7 +11,7 @@ const API = "https://photograph-production-4f29.up.railway.app/retrieve-pca-with
 // const API = "http://73.106.25.87:52847/retrieve-pca-embeddings";
 const zoomThreshold = 0.2;
 
-function ScatterPlot({ refreshToken, is3D }) {
+function ScatterPlot({ refreshToken, is3D, projectId }) {
   // const [overlayImages, setOverlayImages] = useState([]);
   const plotRef = useRef(null);
   const [pcaData, setPcaData] = useState([]);
@@ -19,7 +19,7 @@ function ScatterPlot({ refreshToken, is3D }) {
   // Fetch PCA embeddings from backend
   const fetchPCAEmbeddings = async () => {
     try {
-      const response = await fetch(API, { method: "GET" });
+      const response = await fetch(`${API}?project_id=${projectId}`, { method: "GET" });
       if (!response.ok) {
         const errorData = await response.json();
         console.error("Error retrieving PCA embeddings:", errorData);
@@ -120,7 +120,7 @@ function ScatterPlot({ refreshToken, is3D }) {
       title: { text: "PCA Component 2", font: { size: 14 } },
       zeroline: false,
     },
-    margin: { l: 40, r: 10, t: 10, b: 40 },
+    margin: { l: 60, r: 60, t: 60, b: 60 },
     // images: overlayImages,
   };
 
@@ -150,7 +150,7 @@ function ScatterPlot({ refreshToken, is3D }) {
       yaxis: { title: { text: "PC2", font: { size: 14 } }, zeroline: false },
       zaxis: { title: { text: "PC3", font: { size: 14 } }, zeroline: false },
     },
-    margin: { l: 40, r: 10, t: 10, b: 40 },
+    margin: { l: 10, r: 10, t: 10, b: 10 },
   };
 
   const config = { responsive: true };
