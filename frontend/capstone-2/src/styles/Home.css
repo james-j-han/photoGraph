@@ -2,7 +2,7 @@
   margin: 1rem 1rem 3rem 1rem;
   padding: 1rem;
   width: calc(100vw - 2rem);
-  max-width: 1200px;
+  /* max-width: 1200px; */
   background-color: var(--color-background);
   border-radius: 8px;
   box-sizing: border-box;

@@ -3,6 +3,7 @@
   flex-direction: column;
   gap: 1rem;
   margin: 1rem;
+  margin-bottom: 3rem;
   background-color: var(--color-background);
   padding: 1rem;
   border-radius: 8px;
@@ -90,7 +91,7 @@
   border: 1px solid var(--color-secondary);
   border-radius: 8px;
   background-color: var(--color-text-light);
-  padding: 1rem;
+  /* padding: 1rem; */
 }
 
 /* .scatterplot-box .js-plotly-plot {
