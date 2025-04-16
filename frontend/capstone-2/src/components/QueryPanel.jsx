@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import "../styles/QueryPanel.css";
 
-const API = "https://photograph-production-4f29.up.railway.app/query";
-// const API = "http://127.0.0.1:5000/query";
+// const API = "https://photograph-production-4f29.up.railway.app/query";
+const API = "http://127.0.0.1:5000/query";
 
 function QueryPanel( { projectId }) {
   const [queryType, setQueryType] = useState("text"); // "text" or "image"
