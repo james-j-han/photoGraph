@@ -297,10 +297,10 @@ function ProjectDetail({ project, onBack, onProjectUpdate }) {
 
       <div className="visualization-container">
         <div className="scatterplot-box">
-          <ScatterPlot is3D={is3D} refreshToken={refreshToken} />
+          <ScatterPlot is3D={is3D} refreshToken={refreshToken} projectId={localProject.id} />
         </div>
         <div className="query-panel-box">
-          <QueryPanel />
+          <QueryPanel projectId={localProject.id} />
         </div>
       </div>
 
