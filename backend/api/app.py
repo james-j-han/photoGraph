@@ -151,17 +151,18 @@ def retrieve_pca_with_details():
         # 4. Build a mapping of data_point_id to its data_points details
         dp_map = {dp["id"]: dp for dp in dp_data}
 
-        # 5. Merge the PCA data with the corresponding label and image_url
+        # 5. Build query_results: merge each PCA record with its corresponding label and image_url.
+        query_results = []
         for record in pca_data:
             dp = dp_map.get(record["data_point_id"])
-            if dp:
-                record["label"] = dp.get("label")
-                record["image_url"] = dp.get("image_url")
-            else:
-                record["label"] = None
-                record["image_url"] = None
+            query_results.append({
+                "data_point_id": record["data_point_id"],
+                "embedding": record["embedding"],
+                "label": dp.get("label") if dp else None,
+                "image_url": dp.get("image_url") if dp else None
+            })
 
-        return jsonify(pca_data), 200
+        return jsonify(query_results), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -260,7 +261,7 @@ def query():
 ##############################
 @app.route('/')
 def index():
-    return "Image Embedding and Reconstruction API"
+    return "API is Running"
 
 if __name__ == '__main__':
     app.run(debug=True)
