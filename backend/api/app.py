@@ -130,21 +130,6 @@ def extract_pca_embeddings():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# @app.route('/retrieve-pca-embeddings', methods=['GET'])
-# def retrieve_pca_embeddings():
-#     try:
-#         response = supabase.table("pca_embeddings").select("data_point_id, embedding, data_points(label, image_url)").execute()
-#         pca_data = response.data
-#         if not pca_data:
-#             return jsonify({"error": "No PCA embeddings found"}), 404
-        
-#         print("Retrieved PCA embeddings:", pca_data)
-        
-#         return jsonify(pca_data), 200
-
-#     except Exception as e:
-#         return jsonify({"error": str(e)}), 500
-    
 @app.route('/retrieve-pca-with-details', methods=['GET'])
 def retrieve_pca_with_details():
     try:
@@ -253,7 +238,7 @@ def query():
 ##############################
 @app.route('/')
 def index():
-    return "Image Embedding and Reconstruction API"
+    return "API is Running"
 
 if __name__ == '__main__':
     app.run(debug=True)
