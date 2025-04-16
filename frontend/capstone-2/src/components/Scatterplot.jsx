@@ -11,7 +11,7 @@ const API = "http://127.0.0.1:5000/retrieve-pca-with-details";
 // const API = "http://73.106.25.87:52847/retrieve-pca-embeddings";
 const zoomThreshold = 0.2;
 
-function ScatterPlot({ refreshToken, is3D, projectId}) {
+function ScatterPlot({ refreshToken, is3D, projectId }) {
   // const [overlayImages, setOverlayImages] = useState([]);
   const plotRef = useRef(null);
   const [pcaData, setPcaData] = useState([]);
@@ -132,7 +132,7 @@ function ScatterPlot({ refreshToken, is3D, projectId}) {
       title: { text: "PCA Component 2", font: { size: 14 } },
       zeroline: false,
     },
-    margin: { l: 40, r: 10, t: 10, b: 40 },
+    margin: { l: 60, r: 60, t: 60, b: 60 },
     // images: overlayImages,
   };
 
@@ -165,7 +165,7 @@ function ScatterPlot({ refreshToken, is3D, projectId}) {
       yaxis: { title: { text: "PC2", font: { size: 14 } }, zeroline: false },
       zaxis: { title: { text: "PC3", font: { size: 14 } }, zeroline: false },
     },
-    margin: { l: 40, r: 10, t: 10, b: 40 },
+    margin: { l: 10, r: 10, t: 10, b: 10 },
   };
 
   const config = { responsive: true };

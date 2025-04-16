@@ -133,11 +133,18 @@ def extract_pca_embeddings():
 @app.route('/retrieve-pca-with-details', methods=['GET'])
 def retrieve_pca_with_details():
     try:
-        # 1. Get PCA embeddings from the pca_embeddings table (without nested join)
-        response = supabase.table("pca_embeddings").select("data_point_id, embedding, data_points(label, image_url)").execute()
+        # Require the project_id as a query parameter.
+        project_id = request.args.get("project_id")
+        response = supabase.table("pca_embeddings")\
+            .select("data_point_id, embedding, data_points(label, image_url, project_id)")\
+            .eq("data_points.project_id", project_id)\
+            .execute()
         pca_data = response.data
         if not pca_data:
             return jsonify({"error": "No PCA embeddings found"}), 404
+
+        # Log for debugging
+        print("Retrieved PCA embeddings for project", project_id, ":", pca_data)
 
         return jsonify(pca_data), 200
 
@@ -152,8 +159,14 @@ def query():
         if request.content_type.startswith("application/json"):
             req = request.get_json()
             query_type = req.get("type")
+            project_id = req.get("project_id")
         else:
             query_type = request.form.get("type")
+            project_id = request.form.get("project_id")
+
+        # Ensure project_id is provided.
+        if not project_id:
+            return jsonify({"error": "project_id is required"}), 400
         
         # Parse top_k (default to 5)
         let_top_k = 5  # default
@@ -181,11 +194,23 @@ def query():
         else:
             return jsonify({"error": "Invalid query type"}), 400
 
+        # Retrieve all data_point IDs for the given project.
+        dp_resp_project = supabase.table("data_points")\
+            .select("id")\
+            .eq("project_id", project_id)\
+            .execute()
+        valid_dp_ids = [dp["id"] for dp in dp_resp_project.data] if dp_resp_project.data else []
+        if not valid_dp_ids:
+            return jsonify({"error": "No data points found for this project"}), 404
+        
         # Retrieve stored CLIP embeddings from the "clip_embeddings" table
-        clip_resp = supabase.table("clip_embeddings").select("data_point_id, embedding").execute()
+        clip_resp = supabase.table("clip_embeddings")\
+            .select("data_point_id, embedding")\
+            .in_("data_point_id", valid_dp_ids)\
+            .execute()
         stored_data = clip_resp.data
         if not stored_data or len(stored_data) == 0:
-            return jsonify({"error": "No stored embeddings found"}), 404
+            return jsonify({"error": "No stored embeddings found for this project"}), 404
 
         # Parse stored embeddings and keep their corresponding data_point_id
         stored_embeddings = []
@@ -207,7 +232,10 @@ def query():
         top_similarities = similarities[top_indices]
 
         # Retrieve corresponding rows from the data_points table
-        dp_resp = supabase.table("data_points").select("id, label, image_url").in_("id", top_ids).execute()
+        dp_resp = supabase.table("data_points")\
+            .select("id, label, image_url")\
+            .in_("id", top_ids)\
+            .execute()
         dp_data = dp_resp.data
         if not dp_data:
             return jsonify({"error": "No corresponding data points found"}), 404
