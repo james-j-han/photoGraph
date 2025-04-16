@@ -238,7 +238,6 @@ def query():
         dp_map = {d["id"]: d for d in dp_data}
 
         # Create query results
-        #
         query_results = []
         for i, dp_id in enumerate(top_ids):
             dp = dp_map.get(dp_id)
