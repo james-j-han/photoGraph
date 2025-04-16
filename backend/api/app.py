@@ -130,16 +130,52 @@ def extract_pca_embeddings():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/retrieve-pca-embeddings', methods=['GET'])
-def retrieve_pca_embeddings():
+# @app.route('/retrieve-pca-embeddings', methods=['GET'])
+# def retrieve_pca_embeddings():
+#     try:
+#         response = supabase.table("pca_embeddings").select("data_point_id, embedding, data_points(label, image_url)").execute()
+#         pca_data = response.data
+#         if not pca_data:
+#             return jsonify({"error": "No PCA embeddings found"}), 404
+        
+#         print("Retrieved PCA embeddings:", pca_data)
+        
+#         return jsonify(pca_data), 200
+
+#     except Exception as e:
+#         return jsonify({"error": str(e)}), 500
+    
+@app.route('/retrieve-pca-with-details', methods=['GET'])
+def retrieve_pca_with_details():
     try:
-        response = supabase.table("pca_embeddings").select("data_point_id, embedding, data_points(label, image_url)").execute()
+        # 1. Get PCA embeddings from the pca_embeddings table (without nested join)
+        response = supabase.table("pca_embeddings").select("data_point_id, embedding").execute()
         pca_data = response.data
         if not pca_data:
             return jsonify({"error": "No PCA embeddings found"}), 404
-        
-        print("Retrieved PCA embeddings:", pca_data)
-        
+
+        # 2. Extract all data_point_ids from the PCA data
+        data_point_ids = [record["data_point_id"] for record in pca_data]
+
+        # 3. Retrieve corresponding rows from the data_points table (including label and image_url)
+        dp_response = supabase.table("data_points").select("id, label, image_url").in_("id", data_point_ids).execute()
+        dp_data = dp_response.data
+        if not dp_data:
+            return jsonify({"error": "No matching data points found"}), 404
+
+        # 4. Build a mapping of data_point_id to its data_points details
+        dp_map = {dp["id"]: dp for dp in dp_data}
+
+        # 5. Merge the PCA data with the corresponding label and image_url
+        for record in pca_data:
+            dp = dp_map.get(record["data_point_id"])
+            if dp:
+                record["label"] = dp.get("label")
+                record["image_url"] = dp.get("image_url")
+            else:
+                record["label"] = None
+                record["image_url"] = None
+
         return jsonify(pca_data), 200
 
     except Exception as e:
