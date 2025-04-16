@@ -4,14 +4,14 @@ import Plotly from "plotly.js-dist";
 
 import "../styles/Scatterplot.css";
 
-const API = "https://photograph-production-4f29.up.railway.app/retrieve-pca-with-details";
+// const API = "https://photograph-production-4f29.up.railway.app/retrieve-pca-with-details";
 
-// const API = "http://127.0.0.1:5000/retrieve-pca-with-details";
+const API = "http://127.0.0.1:5000/retrieve-pca-with-details";
 
 // const API = "http://73.106.25.87:52847/retrieve-pca-embeddings";
 const zoomThreshold = 0.2;
 
-function ScatterPlot({ refreshToken, is3D }) {
+function ScatterPlot({ refreshToken, is3D, projectId}) {
   // const [overlayImages, setOverlayImages] = useState([]);
   const plotRef = useRef(null);
   const [pcaData, setPcaData] = useState([]);
@@ -19,7 +19,7 @@ function ScatterPlot({ refreshToken, is3D }) {
   // Fetch PCA embeddings from backend
   const fetchPCAEmbeddings = async () => {
     try {
-      const response = await fetch(API, { method: "GET" });
+      const response = await fetch(`${API}?project_id=${projectId}`, { method: "GET" });
       if (!response.ok) {
         const errorData = await response.json();
         console.error("Error retrieving PCA embeddings:", errorData);
@@ -34,8 +34,19 @@ function ScatterPlot({ refreshToken, is3D }) {
   };
 
   useEffect(() => {
-    fetchPCAEmbeddings();
-  }, [refreshToken]);
+    if (projectId) {
+      fetchPCAEmbeddings();
+    }
+  }, [refreshToken, projectId]);
+
+  // If there's no data, just display a fallback message (or return null).
+  if (!pcaData || pcaData.length === 0) {
+    return (
+      <div style={{ textAlign: "center", marginTop: "1rem" }}>
+        <h3>No data found for this project.</h3>
+      </div>
+    );
+  }
 
   // Process the PCA data to extract coordinates.
   // Here we assume pca_embedding is an array of at least two numbers.
@@ -101,9 +112,10 @@ function ScatterPlot({ refreshToken, is3D }) {
       colorbar: { title: "Component 1" },
     },
     // Assuming our backend returns a flat property "label"
-    text: pcaData.map(
-      (record) => `Label: ${record.data_points.label || "Unnamed"}`
-    ),
+    text: pcaData.map(record => {
+      const lbl = record?.data_points?.label || "Unnamed";
+      return `Label: ${lbl}`;
+    }),
     hoverinfo: "text",
     hovertemplate: "%{text}<extra></extra>",
   };
@@ -137,7 +149,10 @@ function ScatterPlot({ refreshToken, is3D }) {
       color: xValues,
       colorbar: { title: "Component 1" },
     },
-    text: pcaData.map((record) => `Label: ${record.label || "Unnamed"}`),
+    text: pcaData.map(record => {
+      const lbl = record?.data_points?.label || "Unnamed";
+      return `Label: ${lbl}`;
+    }),
     hoverinfo: "text",
     hovertemplate: "%{text}<extra></extra>",
   };
