@@ -4,8 +4,8 @@ import Plotly from "plotly.js-dist";
 
 import "../styles/Scatterplot.css";
 
-const API = "https://photograph-production-4f29.up.railway.app/retrieve-pca-embeddings";
-// const API = "http://127.0.0.1:5000/retrieve-pca-embeddings";
+const API = "https://photograph-production-4f29.up.railway.app/retrieve-pca-with-details";
+// const API = "http://127.0.0.1:5000/retrieve-pca-with-details";
 // const API = "http://73.106.25.87:52847/retrieve-pca-embeddings";
 const zoomThreshold = 0.2;
 
