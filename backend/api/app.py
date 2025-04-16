@@ -136,7 +136,7 @@ def retrieve_pca_with_details():
         # Require the project_id as a query parameter.
         project_id = request.args.get("project_id")
         response = supabase.table("pca_embeddings")\
-            .select("data_point_id, embedding, data_points(label, image_url, project_id)")\
+            .select("data_point_id, embedding, data_points!inner(label, image_url, project_id)")\
             .eq("data_points.project_id", project_id)\
             .execute()
         pca_data = response.data
