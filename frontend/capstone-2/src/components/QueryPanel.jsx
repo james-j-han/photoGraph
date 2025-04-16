@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import "../styles/QueryPanel.css";
 
-const API = "http://127.0.0.1:5000/query";
+const API = "https://photograph-production-4f29.up.railway.app/query";
+// const API = "http://127.0.0.1:5000/query";
 
 function QueryPanel() {
   const [queryType, setQueryType] = useState("text"); // "text" or "image"
@@ -53,7 +54,7 @@ function QueryPanel() {
         formData.append("file", imageFile);
         formData.append("top_k", topK);
         formData.append("type", "image");
-        response = await fetch("http://127.0.0.1:5000/query", {
+        response = await fetch(API, {
           method: "POST",
           body: formData,
         });

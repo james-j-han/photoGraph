@@ -7,10 +7,13 @@ import QueryPanel from "./QueryPanel";
 
 import "../styles/ProjectDetail.css";
 
-const EXTRACT_CLIP_EMBEDDING_API = "http://127.0.0.1:5000/extract-clip-embeddings";
-const EXTRACT_PCA_EMBEDDING_API = "http://127.0.0.1:5000/extract-pca-embeddings";
+const EXTRACT_CLIP_EMBEDDING_API = "https://photograph-production-4f29.up.railway.app/extract-clip-embeddings";
+const EXTRACT_PCA_EMBEDDING_API = "https://photograph-production-4f29.up.railway.app/extract-pca-embeddings";
 
-// Testing API
+// const EXTRACT_CLIP_EMBEDDING_API = "http://127.0.0.1:5000/extract-clip-embeddings";
+// const EXTRACT_PCA_EMBEDDING_API = "http://127.0.0.1:5000/extract-pca-embeddings";
+
+// Toan's API
 // const EXTRACT_CLIP_EMBEDDING_API = "http://73.106.25.87:52847/extract-clip-embeddings"
 // const EXTRACT_PCA_EMBEDDING_API = "http://73.106.25.87:52847/extract-pca-embeddings"
 
