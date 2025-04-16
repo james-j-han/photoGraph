@@ -133,7 +133,6 @@ def extract_pca_embeddings():
 @app.route('/retrieve-pca-with-details', methods=['GET'])
 def retrieve_pca_with_details():
     try:
-        # 1. Get PCA embeddings from the pca_embeddings table (without nested join)
         response = supabase.table("pca_embeddings").select("data_point_id, embedding, data_points(label, image_url)").execute()
         pca_data = response.data
         if not pca_data:
