@@ -237,7 +237,7 @@ def query():
 ##############################
 @app.route('/')
 def index():
-    return "Image Embedding and Reconstruction API"
+    return "API is Running"
 
 if __name__ == '__main__':
     app.run(debug=True)
