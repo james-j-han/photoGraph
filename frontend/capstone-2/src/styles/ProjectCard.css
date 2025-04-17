@@ -22,3 +22,25 @@
   margin: 0.3rem 0;
   color: var(--color-text-dark);
 }
+
+.delete-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: #e74c3c;
+  color: white;
+  border: none;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+/* .delete-btn {
+  background: transparent;
+  border: none;
+  color: #f00;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+} */
