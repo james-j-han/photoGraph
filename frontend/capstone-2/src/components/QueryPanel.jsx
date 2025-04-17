@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import "../styles/QueryPanel.css";
 
-// const API = "https://photograph-production-4f29.up.railway.app/query";
-const API = "http://127.0.0.1:5000/query";
+const API = "https://photograph-production-4f29.up.railway.app/query";
+// const API = "http://127.0.0.1:5000/query";
 
 function QueryPanel( { projectId }) {
   const [queryType, setQueryType] = useState("text"); // "text" or "image"
@@ -70,6 +70,9 @@ function QueryPanel( { projectId }) {
       const queryResults = await response.json();
       console.log("Query results:", queryResults);
       setResults(queryResults);
+
+      // Force resize so that Scatterplot resizes
+      window.dispatchEvent(new Event("resize"))
     } catch (err) {
       console.error("Error submitting query:", err);
     }
@@ -78,7 +81,7 @@ function QueryPanel( { projectId }) {
   return (
     <div className="query-panel">
       <h2 className="query-panel-title">Query Top-k Similar Images</h2>
-      <form className="query-form" onSubmit={handleSubmit}>
+      <form key={queryType} className="query-form" onSubmit={handleSubmit}>
         <div className="query-selection">
           <label>
             <input

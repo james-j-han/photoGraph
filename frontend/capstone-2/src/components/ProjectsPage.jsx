@@ -23,6 +23,42 @@ function ProjectsPage({ onSelectProject, userData, refreshProjects }) {
     }
   };
 
+  const handleDeleteProject = async (projectId) => {
+    if (!window.confirm("Are you sure you want to delete this project?")) return;
+
+    try {
+      const { data: files, error: listError } = await supabase
+        .storage
+        .from("images")
+        .list(`${projectId}`);
+      if (listError) throw listError;
+
+      console.log(files);
+
+      const paths = files.map(f => `${projectId}/${f.name}`);
+      console.log(paths);
+
+      if (paths.length > 0) {
+        const { error: rmError } = await supabase
+          .storage
+          .from("images")
+          .remove(paths);
+        if (rmError) throw rmError;
+      }
+
+      const { error: projError } = await supabase
+        .from("projects")
+        .delete()
+        .eq("id", projectId);
+      if (projError) throw projError;
+
+      setProjects(ps => ps.filter(p => p.id !== projectId));
+    } catch (err) {
+      console.error("Failed to delete project:", err);
+      alert("Sorry, something went wrong when deleting your project.");
+    }
+  }
+
   // Call loadProjects on mount and whenever refreshProjects is toggled.
   useEffect(() => {
     if (userData) {
@@ -86,6 +122,7 @@ function ProjectsPage({ onSelectProject, userData, refreshProjects }) {
               key={project.id}
               project={project}
               onClick={() => onSelectProject(project)}
+              onDelete={(id) => handleDeleteProject(id)}
             />
           ))}
         </div>
