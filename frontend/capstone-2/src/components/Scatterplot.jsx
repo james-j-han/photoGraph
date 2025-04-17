@@ -17,6 +17,7 @@ function ScatterPlot({ refreshToken, is3D, projectId }) {
   const [pcaData, setPcaData] = useState([]);
 
   // Fetch PCA embeddings from backend
+  console.log(projectId);
   const fetchPCAEmbeddings = async () => {
     try {
       const response = await fetch(`${API}?project_id=${projectId}`, { method: "GET" });
@@ -26,7 +27,7 @@ function ScatterPlot({ refreshToken, is3D, projectId }) {
         return;
       }
       const data = await response.json();
-      console.log("PCA embeddings retrieved:", data);
+      // console.log("PCA embeddings retrieved:", data);
       setPcaData(data);
     } catch (err) {
       console.error("Error fetching PCA embeddings:", err);
