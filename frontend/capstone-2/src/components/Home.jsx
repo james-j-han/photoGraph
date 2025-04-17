@@ -10,7 +10,7 @@ function HomeSection() {
       <div className="hero-section">
         <h1>Welcome to photoGRAPH</h1>
         <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+          In the age where artificial intelligence and machine learning is popular, data is essential. Luckily, we have access to a lot of data in the form of images, videos, text, etc. However, the size of this data can be very large and hard to explore. Our tool addresses this data visualization issue by allowing users to upload, plot, and explore their image data.
         </p>
       </div>
       
